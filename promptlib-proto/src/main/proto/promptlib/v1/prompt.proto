@@ -1,0 +1,57 @@
+syntax = "proto3";
+package promptlib.v1;
+option java_package = "com.promptlib.proto.v1";
+option java_multiple_files = true;
+option java_outer_classname = "PromptProto";
+import "promptlib/v1/common.proto";
+
+service PromptService {
+  rpc Create (CreatePromptRequest) returns (PromptReply);
+  rpc Get (GetPromptRequest) returns (PromptReply);
+  rpc List (ListPromptsRequest) returns (ListPromptsReply);
+  rpc UpdateMetadata (UpdatePromptRequest) returns (PromptReply);
+  rpc Delete (GetPromptRequest) returns (Empty);
+}
+
+message CreatePromptRequest {
+  string title = 1;
+  string description = 2;
+  repeated MessageInput messages = 3;
+  repeated VariableInput variables = 4;
+}
+
+message UpdatePromptRequest {
+  string prompt_id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message GetPromptRequest {
+  string prompt_id = 1;
+}
+
+message ListPromptsRequest {
+  PageRequest page = 1;
+  string query = 2;
+}
+
+message ListPromptsReply {
+  repeated PromptReply items = 1;
+  string next_cursor = 2;
+}
+
+message PromptReply {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string visibility = 4;
+  string category_id = 5;
+  string latest_version_id = 6;
+  string published_version_id = 7;
+  string fork_of_prompt_id = 8;
+  int32 copy_count = 9;
+  string moderation_state = 10;
+  string hidden_reason = 11;
+  string created_at = 12;
+  string updated_at = 13;
+}

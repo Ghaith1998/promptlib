@@ -28,11 +28,13 @@ The Maven wrapper is included; no global Maven install is needed.
 ## Build and test
 
 ```bash
-./mvnw clean verify            # compile + all tests
-./mvnw -pl promptlib-core test # one module
+./scripts/test.sh verify       # compile + all tests (loads .env)
+./scripts/test.sh -pl promptlib-core -am -Dtest=PromptLifecycleTest
 ```
 
-Tests for `core` start a throwaway MySQL through Dev Services; Docker must be running.
+`core` tests run against a dedicated MySQL schema (`promptlib_test`), because this host has no
+Docker for Dev Services. `TEST_DB_URL` comes from `.env`; without it the tests fall back to
+Dev Services and fail on a Docker-less machine. `./mvnw verify` alone will fail for the same reason.
 
 ## Run locally
 
@@ -49,7 +51,8 @@ DB_PASSWORD=…
 Then:
 
 ```bash
-./scripts/dev-core.sh      # sources .env, installs proto, runs quarkus:dev
+./scripts/dev-core.sh      # sources .env, installs proto, runs quarkus:dev  (HTTP 9001, gRPC 9000)
+./scripts/dev-edge.sh      # in another terminal; needs Keycloak at OIDC_URL
 ```
 
 Quarkus has no built-in `.env` loader, which is why the script exports the file. Flyway applies

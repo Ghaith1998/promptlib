@@ -1,0 +1,20 @@
+syntax = "proto3";
+package promptlib.v1;
+option java_package = "com.promptlib.proto.v1";
+option java_multiple_files = true;
+option java_outer_classname = "AdminProto";
+import "promptlib/v1/common.proto";
+
+service AdminService {
+  rpc Hide (HideRequest) returns (Empty);
+  rpc Unhide (UnhideRequest) returns (Empty);
+}
+
+message HideRequest {
+  string prompt_id = 1;
+  string reason = 2;
+}
+
+message UnhideRequest {
+  string prompt_id = 1;
+}

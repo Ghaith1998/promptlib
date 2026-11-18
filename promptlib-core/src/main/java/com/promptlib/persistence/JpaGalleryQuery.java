@@ -1,6 +1,6 @@
 package com.promptlib.persistence;
 
-import com.promptlib.domain.gallery.model.GalleryItem;
+import com.promptlib.domain.gallery.model.GalleryRow;
 import com.promptlib.domain.gallery.port.GalleryQuery;
 import com.promptlib.shared.Cursor;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,9 +17,9 @@ public class JpaGalleryQuery implements GalleryQuery {
     EntityManager em;
 
     @Override
-    public List<GalleryItem> newest(UUID categoryId, Cursor cursor, int limit) {
+    public List<GalleryRow> newest(UUID categoryId, Cursor cursor, int limit) {
         String jpql = """
-                select new com.promptlib.domain.gallery.model.GalleryItem(
+                select new com.promptlib.domain.gallery.model.GalleryRow(
                     p.id, p.title, p.description, p.categoryId, p.copyCount, p.createdAt)
                 from Prompt p
                 where p.deletedAt is null
@@ -34,7 +34,7 @@ public class JpaGalleryQuery implements GalleryQuery {
         }
         jpql += " order by p.createdAt desc, p.id desc";
 
-        var query = em.createQuery(jpql, GalleryItem.class);
+        var query = em.createQuery(jpql, GalleryRow.class);
         if (categoryId != null) {
             query.setParameter("category", categoryId);
         }

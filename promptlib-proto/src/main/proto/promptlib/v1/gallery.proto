@@ -1,0 +1,45 @@
+syntax = "proto3";
+package promptlib.v1;
+option java_package = "com.promptlib.proto.v1";
+option java_multiple_files = true;
+option java_outer_classname = "GalleryProto";
+import "promptlib/v1/common.proto";
+import "promptlib/v1/prompt.proto";
+
+service GalleryService {
+  rpc Browse (BrowseRequest) returns (BrowseReply);
+  rpc Fork (ForkRequest) returns (ForkReply);
+  rpc AddFavorite (FavoriteRequest) returns (Empty);
+  rpc RemoveFavorite (FavoriteRequest) returns (Empty);
+}
+
+message BrowseRequest {
+  PageRequest page = 1;
+  string category_id = 2;
+}
+
+message BrowseReply {
+  repeated GalleryItem items = 1;
+  string next_cursor = 2;
+}
+
+message GalleryItem {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string category_id = 4;
+  int32 copy_count = 5;
+  string created_at = 6;
+}
+
+message ForkRequest {
+  string prompt_id = 1;
+}
+
+message ForkReply {
+  string prompt_id = 1;
+}
+
+message FavoriteRequest {
+  string prompt_id = 1;
+}

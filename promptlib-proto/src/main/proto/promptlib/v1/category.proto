@@ -1,0 +1,22 @@
+syntax = "proto3";
+package promptlib.v1;
+option java_package = "com.promptlib.proto.v1";
+option java_multiple_files = true;
+option java_outer_classname = "CategoryProto";
+import "promptlib/v1/common.proto";
+
+service CategoryService {
+  rpc List (Empty) returns (ListCategoriesReply);
+}
+
+message ListCategoriesReply {
+  repeated CategoryReply items = 1;
+}
+
+message CategoryReply {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string color = 4;
+  int32 sort_order = 5;
+}

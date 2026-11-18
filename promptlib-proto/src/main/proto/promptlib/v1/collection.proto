@@ -1,0 +1,38 @@
+syntax = "proto3";
+package promptlib.v1;
+option java_package = "com.promptlib.proto.v1";
+option java_multiple_files = true;
+option java_outer_classname = "CollectionProto";
+import "promptlib/v1/common.proto";
+
+service CollectionService {
+  rpc List (Empty) returns (ListCollectionsReply);
+  rpc Create (CreateCollectionRequest) returns (CollectionReply);
+  rpc Delete (CollectionRef) returns (Empty);
+  rpc AddPrompt (AddPromptRequest) returns (Empty);
+}
+
+message CollectionRef {
+  string collection_id = 1;
+}
+
+message ListCollectionsReply {
+  repeated CollectionReply items = 1;
+}
+
+message CreateCollectionRequest {
+  string name = 1;
+  string color = 2;
+}
+
+message CollectionReply {
+  string id = 1;
+  string name = 2;
+  string color = 3;
+  bool is_default = 4;
+}
+
+message AddPromptRequest {
+  string collection_id = 1;
+  string prompt_id = 2;
+}

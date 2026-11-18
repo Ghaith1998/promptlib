@@ -3,7 +3,7 @@ package com.promptlib.domain.gallery;
 import com.promptlib.domain.account.model.AppUser;
 import com.promptlib.domain.account.service.AccountService;
 import com.promptlib.domain.category.service.CategoryService;
-import com.promptlib.domain.gallery.model.GalleryItem;
+import com.promptlib.domain.gallery.model.GalleryRow;
 import com.promptlib.domain.gallery.service.FavoriteService;
 import com.promptlib.domain.gallery.service.GalleryService;
 import com.promptlib.domain.library.model.Collection;
@@ -61,7 +61,7 @@ class GalleryTest {
         Prompt privatePrompt = prompts.create(owner, new PromptDraft("Private", null,
                 List.of(new MessageDraft(MessageRole.USER, "secret")), List.of()));
 
-        Page<GalleryItem> page = gallery.browse(null, null, 20);
+        Page<GalleryRow> page = gallery.browse(null, null, 20);
 
         assertTrue(page.items().stream().anyMatch(i -> i.id().equals(publicPrompt.id)));
         assertTrue(page.items().stream().noneMatch(i -> i.id().equals(privatePrompt.id)));
@@ -83,7 +83,7 @@ class GalleryTest {
         Collection def = collections.ensureDefault(other);
         assertTrue(collectionRepository.hasPrompt(def.id, fork.id));
 
-        GalleryItem sourceRow = gallery.browse(null, null, 50).items().stream()
+        GalleryRow sourceRow = gallery.browse(null, null, 50).items().stream()
                 .filter(i -> i.id().equals(source.id))
                 .findFirst()
                 .orElseThrow();

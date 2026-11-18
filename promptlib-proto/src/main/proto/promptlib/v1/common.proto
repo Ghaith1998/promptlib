@@ -1,0 +1,41 @@
+syntax = "proto3";
+package promptlib.v1;
+option java_package = "com.promptlib.proto.v1";
+option java_multiple_files = true;
+option java_outer_classname = "CommonProto";
+
+message Empty {}
+
+message PageRequest {
+  string cursor = 1;
+  int32 limit = 2;
+}
+
+message MessageInput {
+  string role = 1;
+  string content = 2;
+}
+
+message VariableInput {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  string default_value = 4;
+  string description = 5;
+  repeated string enum_values = 6;
+}
+
+message MessageReply {
+  string role = 1;
+  int32 position = 2;
+  string content = 3;
+}
+
+message VariableReply {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  string default_value = 4;
+  string description = 5;
+  repeated string enum_values = 6;
+}

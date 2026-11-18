@@ -1,6 +1,6 @@
 package com.promptlib.domain.gallery.service;
 
-import com.promptlib.domain.gallery.model.GalleryItem;
+import com.promptlib.domain.gallery.model.GalleryRow;
 import com.promptlib.domain.gallery.port.GalleryQuery;
 import com.promptlib.shared.CallerContext;
 import com.promptlib.shared.Cursor;
@@ -24,16 +24,16 @@ public class GalleryService {
         this.forking = forking;
     }
 
-    public Page<GalleryItem> browse(UUID categoryId, String cursor, int limit) {
+    public Page<GalleryRow> browse(UUID categoryId, String cursor, int limit) {
         int size = Math.max(1, Math.min(limit <= 0 ? 20 : limit, 100));
         Cursor decoded = cursor == null || cursor.isBlank() ? null : Cursor.decode(cursor);
 
-        List<GalleryItem> rows = query.newest(categoryId, decoded, size + 1);
+        List<GalleryRow> rows = query.newest(categoryId, decoded, size + 1);
         boolean hasMore = rows.size() > size;
-        List<GalleryItem> items = hasMore ? rows.subList(0, size) : rows;
+        List<GalleryRow> items = hasMore ? rows.subList(0, size) : rows;
         String next = null;
         if (hasMore) {
-            GalleryItem last = items.get(items.size() - 1);
+            GalleryRow last = items.get(items.size() - 1);
             next = Cursor.of(last.createdAt(), last.id()).encode();
         }
         return Page.of(items, next);
