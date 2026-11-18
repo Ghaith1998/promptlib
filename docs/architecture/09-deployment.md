@@ -90,9 +90,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://mysql:3306/promptlib?sslMode=DISABLED&allowPublicKeyRetrieval=true&connectionTimeZone=UTC
       KC_REGISTER_CLIENT_SECRET: ${KC_REGISTER_CLIENT_SECRET}
-      QUARKUS_KEYCLOAK_ADMIN_CLIENT_SERVER_URL: https://auth.example.com
-      QUARKUS_KEYCLOAK_ADMIN_CLIENT_REALM: promptlib
-      QUARKUS_KEYCLOAK_ADMIN_CLIENT_CLIENT_ID: promptlib-register
+      KC_URL: http://keycloak:8080
     volumes:
       - logs-core:/var/log/promptlib
     depends_on:

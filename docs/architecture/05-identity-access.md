@@ -321,34 +321,30 @@ There is no `is_admin` column anywhere. That is deliberate: one source of truth.
 Registration is the only operation that needs a service account. It is deliberately narrow:
 
 ```properties
-quarkus.keycloak.admin-client.server-url=https://auth.example.com
-quarkus.keycloak.admin-client.realm=promptlib
-quarkus.keycloak.admin-client.client-id=promptlib-register
-quarkus.keycloak.admin-client.client-secret=${KC_REGISTER_CLIENT_SECRET}
-quarkus.keycloak.admin-client.grant-type=client_credentials
+quarkus.oidc-client.keycloak-admin.auth-server-url=https://auth.example.com/realms/promptlib
+quarkus.oidc-client.keycloak-admin.client-id=promptlib-register
+quarkus.oidc-client.keycloak-admin.credentials.secret=${KC_REGISTER_CLIENT_SECRET}
+quarkus.oidc-client.keycloak-admin.grant.type=client_credentials
+quarkus.rest-client.keycloak-admin.url=https://auth.example.com
 ```
 
 ```java
-@ApplicationScoped
-public class KeycloakRegistrationAdapter implements UserRegistrationPort {
+@RegisterRestClient(configKey = "keycloak-admin")
+@OidcClientFilter("keycloak-admin")          // adds the service-account bearer token
+public interface KeycloakAdminClient {
 
-    @Inject Keycloak keycloak;   // quarkus-keycloak-admin-client
-
-    @Override
-    public String createUser(String username, String email, String displayName, String password) {
-        UserRepresentation u = new UserRepresentation();
-        u.setUsername(username);
-        u.setEmail(email);
-        u.setEnabled(true);
-        u.setEmailVerified(false);
-        u.setCredentials(List.of(new CredentialRepresentation() {{
-            setType("password"); setValue(password); setTemporary(false);
-        }}));
-        Response r = keycloak.realm("promptlib").users().create(u);   // 201 + Location
-        return extractId(r);                                            // == the 'sub'
-    }
+    @POST
+    @Path("/admin/realms/promptlib/users")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response createUser(CreateKeycloakUser body);   // 201 + Location: …/users/{id}
 }
 ```
+
+`KeycloakRegistrationAdapter` (in `adapter/keycloak`) implements the domain port, builds the request
+body from a small `CreateKeycloakUser` record, and extracts the id from the `Location` header.
+
+> The old `quarkus-keycloak-admin-client` extension stopped shipping after 3.15 and is not part of
+> the Quarkus 3.33 BOM. Do not pin it — call the Admin REST API directly, as above.
 
 Rules:
 

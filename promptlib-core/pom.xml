@@ -36,9 +36,17 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-flyway</artifactId>
     </dependency>
+    <!-- Registration talks to the Keycloak Admin REST API directly: the old
+         quarkus-keycloak-admin-client extension stopped shipping after 3.15 and
+         is not part of the 3.33 BOM. OidcClient acquires the service-account
+         token; the REST client performs the call. -->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-keycloak-admin-client</artifactId>
+      <artifactId>quarkus-oidc-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-client-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
