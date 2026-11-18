@@ -28,6 +28,7 @@ import java.util.UUID;
  * and publishing only moves a pointer.
  */
 @ApplicationScoped
+@Transactional
 public class VersionService {
 
     private final PromptRepository prompts;

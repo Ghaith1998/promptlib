@@ -6,10 +6,12 @@ import com.promptlib.shared.CallerContext;
 import com.promptlib.shared.error.Forbidden;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 
 @ApplicationScoped
+@Transactional
 public class AdminService {
 
     private final AdminQuery query;

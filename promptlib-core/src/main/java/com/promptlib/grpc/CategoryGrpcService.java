@@ -12,8 +12,10 @@ import com.promptlib.proto.v1.ListCategoriesReply;
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Inject;
 import io.quarkus.grpc.GrpcService;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 
 @GrpcService
+@ActivateRequestContext
 public class CategoryGrpcService extends CategoryServiceGrpc.CategoryServiceImplBase {
 
     @Inject

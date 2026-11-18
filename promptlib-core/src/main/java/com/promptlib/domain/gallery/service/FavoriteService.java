@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
+@Transactional
 public class FavoriteService {
 
     private final FavoriteRepository favorites;

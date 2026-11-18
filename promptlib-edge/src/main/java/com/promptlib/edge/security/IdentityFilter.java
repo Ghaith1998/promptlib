@@ -3,7 +3,9 @@ package com.promptlib.edge.security;
 import com.promptlib.edge.client.AccountClient;
 import com.promptlib.proto.v1.UserReply;
 import io.grpc.StatusRuntimeException;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.Priority;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.WebApplicationException;
@@ -25,7 +27,9 @@ import java.util.UUID;
 public class IdentityFilter implements ContainerRequestFilter {
 
     @Inject
-    JsonWebToken jwt;
+    Instance<JsonWebToken> jwt;
+    @Inject
+    SecurityIdentity securityIdentity;
     @Inject
     AccountClient accounts;
     @Inject
@@ -33,30 +37,34 @@ public class IdentityFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext request) {
-        String path = request.getUriInfo().getPath();
-        if (path.startsWith("/auth/register")) {
+        if (request.getUriInfo().getPath().startsWith("/auth/register")) {
             return;
         }
+        if (securityIdentity.isAnonymous()) {
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        }
 
-        String sub = jwt.getSubject();
+        JsonWebToken token = jwt.isResolvable() ? jwt.get() : null;
+        String sub = token != null ? token.getSubject() : securityIdentity.getPrincipal().getName();
         if (sub == null || sub.isBlank()) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
-        String username = claim("preferred_username", sub);
-        String email = claim("email", "");
-        Set<String> roles = jwt.getGroups() == null ? Set.of() : jwt.getGroups();
+        String username = token != null ? claim(token, "preferred_username", sub) : sub;
+        String email = token != null ? claim(token, "email", "") : "";
+        Set<String> roles = token != null && token.getGroups() != null
+                ? token.getGroups()
+                : securityIdentity.getRoles();
 
         try {
             UserReply me = accounts.ensureUser(sub, username, email, roles);
             identity.resolve(UUID.fromString(me.getId()), sub, roles);
         } catch (StatusRuntimeException e) {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.SERVICE_UNAVAILABLE).build());
+            throw new WebApplicationException(Response.Status.SERVICE_UNAVAILABLE);
         }
     }
 
-    private String claim(String name, String fallback) {
-        Object value = jwt.getClaim(name);
+    private String claim(JsonWebToken token, String name, String fallback) {
+        Object value = token.getClaim(name);
         return value == null ? fallback : value.toString();
     }
 }

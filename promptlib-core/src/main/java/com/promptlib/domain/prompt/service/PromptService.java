@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
+@Transactional
 public class PromptService {
 
     private final PromptRepository prompts;

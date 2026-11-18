@@ -13,8 +13,10 @@ import com.promptlib.shared.CallerContext;
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Inject;
 import io.quarkus.grpc.GrpcService;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 
 @GrpcService
+@ActivateRequestContext
 public class CollectionGrpcService extends CollectionServiceGrpc.CollectionServiceImplBase {
 
     @Inject

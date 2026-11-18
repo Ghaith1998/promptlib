@@ -18,6 +18,7 @@ import java.util.UUID;
  * username and email; display name belongs to the application.
  */
 @ApplicationScoped
+@Transactional
 public class AccountService {
 
     private final AppUserRepository users;

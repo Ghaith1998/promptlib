@@ -8,11 +8,13 @@ import com.promptlib.shared.Page;
 import com.promptlib.shared.port.PromptForking;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
+@Transactional
 public class GalleryService {
 
     private final GalleryQuery galleryQuery;

@@ -6,11 +6,13 @@ import com.promptlib.shared.ProblemCode;
 import com.promptlib.shared.error.ValidationFailed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
+@Transactional
 public class CategoryService {
 
     private final CategoryRepository categories;

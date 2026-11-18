@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
+@Transactional
 public class CollectionService {
 
     private final CollectionRepository collections;

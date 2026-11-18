@@ -2,12 +2,16 @@ package com.promptlib.grpc;
 
 import com.promptlib.shared.error.DomainException;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import org.jboss.logging.Logger;
 
 import java.util.function.Supplier;
 
-/** Uniform unary handling: one success path, one domain-error path, one opaque internal path. */
+/** Uniform unary handling: success, domain error, transport error, opaque internal error. */
 public final class GrpcResponses {
+
+    private static final Logger LOG = Logger.getLogger(GrpcResponses.class);
 
     private GrpcResponses() {
     }
@@ -18,7 +22,10 @@ public final class GrpcResponses {
             observer.onCompleted();
         } catch (DomainException e) {
             observer.onError(GrpcErrors.toStatus(e));
+        } catch (StatusRuntimeException e) {
+            observer.onError(e);
         } catch (RuntimeException e) {
+            LOG.error("gRPC call failed", e);
             observer.onError(Status.INTERNAL.withDescription("internal error").asRuntimeException());
         }
     }
@@ -30,7 +37,10 @@ public final class GrpcResponses {
             observer.onCompleted();
         } catch (DomainException e) {
             observer.onError(GrpcErrors.toStatus(e));
+        } catch (StatusRuntimeException e) {
+            observer.onError(e);
         } catch (RuntimeException e) {
+            LOG.error("gRPC call failed", e);
             observer.onError(Status.INTERNAL.withDescription("internal error").asRuntimeException());
         }
     }
