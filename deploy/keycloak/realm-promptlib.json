@@ -11,15 +11,23 @@
   "refreshTokenMaxReuse": 0,
   "roles": {
     "realm": [
-      { "name": "user", "description": "Can use the prompt library" },
-      { "name": "admin", "description": "Manages categories and gallery moderation" }
+      {
+        "name": "user",
+        "description": "Can use the prompt library"
+      },
+      {
+        "name": "admin",
+        "description": "Manages categories and gallery moderation"
+      }
     ]
   },
   "clientScopes": [
     {
       "name": "promptlib-api",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "false" },
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
       "protocolMappers": [
         {
           "name": "api-audience",
@@ -41,9 +49,20 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
       "implicitFlowEnabled": false,
-      "attributes": { "pkce.code.challenge.method": "S256" },
-      "redirectUris": ["com.promptlib.app://oauth2redirect", "http://127.0.0.1:*"],
-      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "promptlib-api"]
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "redirectUris": [
+        "com.promptlib.app://oauth2redirect",
+        "http://127.0.0.1:*"
+      ],
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles",
+        "web-origins",
+        "promptlib-api"
+      ]
     },
     {
       "clientId": "promptlib-edge",
@@ -51,16 +70,36 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "secret": "dev-only-edge-secret",
-      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "promptlib-api"]
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles",
+        "web-origins",
+        "promptlib-api"
+      ]
     },
     {
       "clientId": "promptlib-swagger",
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "attributes": { "pkce.code.challenge.method": "S256" },
-      "redirectUris": ["http://localhost:8080/q/swagger-ui/oauth2-redirect.html"],
-      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "promptlib-api"]
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "redirectUris": [
+        "http://localhost:8080/q/swagger-ui/oauth2-redirect.html"
+      ],
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles",
+        "web-origins",
+        "promptlib-api"
+      ],
+      "webOrigins": [
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
+      ]
     },
     {
       "clientId": "promptlib-register",
@@ -70,22 +109,52 @@
       "serviceAccountsEnabled": true,
       "secret": "dev-only-register-secret",
       "defaultClientScopes": [
-        "profile", "email", "roles", "web-origins", "promptlib-api", "kc-admin-api"
+        "profile",
+        "email",
+        "roles",
+        "web-origins",
+        "promptlib-api",
+        "kc-admin-api"
       ]
     }
   ],
   "users": [
     {
-      "username": "alice", "enabled": true, "email": "alice@local", "emailVerified": true,
-      "firstName": "Alice", "lastName": "Tester",
-      "credentials": [{ "type": "password", "value": "alice", "temporary": false }],
-      "realmRoles": ["user"]
+      "username": "alice",
+      "enabled": true,
+      "email": "alice@local",
+      "emailVerified": true,
+      "firstName": "Alice",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "alice",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ]
     },
     {
-      "username": "admin", "enabled": true, "email": "admin@local", "emailVerified": true,
-      "firstName": "Admin", "lastName": "Tester",
-      "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
-      "realmRoles": ["user", "admin"]
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@local",
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Tester",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user",
+        "admin"
+      ]
     }
   ]
 }
