@@ -296,13 +296,23 @@ Run after every deploy (`09-deployment.md §6`):
 
 ## 9. Coverage and gates
 
-| Area | Target | Rationale |
+Coverage is collected by the **quarkus-jacoco** extension, not by the JaCoCo Maven agent. The agent
+sees Quarkus' enhanced classes (CDI proxies, JPA entities) under different class ids and reports
+near-zero for exactly the code that matters; quarkus-jacoco instruments through the Quarkus
+classloader and writes `target/jacoco-quarkus.exec`. `jacoco-maven-plugin` then reads that file for
+`report` and `check`.
+
+| Gate | Where | Threshold |
 |---|---|---|
-| `domain.*` (core) | ≥ 80 % line | Rules live here; bugs here are expensive |
-| gRPC mappers | happy + one error path each | Mapping bugs are silent |
-| edge resources | 100 % of endpoints have the 3-case matrix | Security regression guard |
-| ArchUnit | must pass | Boundary regression guard |
-| Overall | ≥ 65 % | Avoid theatre coverage; don't chase 90 % on DTOs |
+| `com.promptlib.domain.**` line coverage | `promptlib-core`, `verify` | **≥ 80 %** |
+| `promptlib-core` bundle line coverage | `promptlib-core`, `verify` | **≥ 65 %** |
+| `promptlib-edge` bundle line coverage, excluding `client/**` and `api/dto/**` | `promptlib-edge`, `verify` | **≥ 65 %** |
+
+The edge excludes are deliberate: `*Client` classes are one-line gRPC stubs that tests necessarily
+mock, and DTO records carry no logic. Excluding them keeps the gate honest rather than padding it.
+
+`jacoco:check` fails the build with `Rule violated for bundle …` — it is not a report-only goal.
+Verified by temporarily raising a threshold above the measured ratio and watching `verify` go red.
 
 No mutation testing in v1. No Pact. No Selenium.
 
