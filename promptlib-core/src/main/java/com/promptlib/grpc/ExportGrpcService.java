@@ -7,10 +7,12 @@ import com.promptlib.proto.v1.ExportPromptRef;
 import com.promptlib.proto.v1.ExportServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 
 @GrpcService
+@Blocking
 @ActivateRequestContext
 public class ExportGrpcService extends ExportServiceGrpc.ExportServiceImplBase {
 

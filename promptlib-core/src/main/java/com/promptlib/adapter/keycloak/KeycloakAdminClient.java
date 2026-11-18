@@ -1,6 +1,6 @@
 package com.promptlib.adapter.keycloak;
 
-import io.quarkus.oidc.client.filter.OidcClientFilter;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -10,7 +10,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 /** The Keycloak Admin REST API, limited to what registration needs. */
 @RegisterRestClient(configKey = "keycloak-admin")
-@OidcClientFilter("keycloak-admin")
+@RegisterProvider(KeycloakAuthFilter.class)
 public interface KeycloakAdminClient {
 
     @POST

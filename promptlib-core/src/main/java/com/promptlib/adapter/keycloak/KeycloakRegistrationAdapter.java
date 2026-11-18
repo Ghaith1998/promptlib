@@ -20,7 +20,14 @@ public class KeycloakRegistrationAdapter implements KeycloakRegistrationPort {
 
     @Override
     public String createUser(String username, String email, String displayName, String password) {
-        CreateKeycloakUser body = new CreateKeycloakUser(username, email, true, false,
+        String first = displayName == null || displayName.isBlank() ? username : displayName.trim();
+        String last = "User";
+        int space = first.indexOf(' ');
+        if (space > 0) {
+            last = first.substring(space + 1).trim();
+            first = first.substring(0, space);
+        }
+        CreateKeycloakUser body = new CreateKeycloakUser(username, email, first, last, true, false,
                 List.of(new CreateKeycloakUser.Credential("password", password, false)));
         try (Response response = client.createUser(body)) {
             if (response.getStatus() == 409) {

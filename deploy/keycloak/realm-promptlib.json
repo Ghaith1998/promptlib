@@ -1,0 +1,91 @@
+{
+  "realm": "promptlib",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "roles": {
+    "realm": [
+      { "name": "user", "description": "Can use the prompt library" },
+      { "name": "admin", "description": "Manages categories and gallery moderation" }
+    ]
+  },
+  "clientScopes": [
+    {
+      "name": "promptlib-api",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "false" },
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "promptlib-edge",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "promptlib-app",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "redirectUris": ["com.promptlib.app://oauth2redirect", "http://127.0.0.1:*"],
+      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "promptlib-api"]
+    },
+    {
+      "clientId": "promptlib-edge",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "secret": "dev-only-edge-secret",
+      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "promptlib-api"]
+    },
+    {
+      "clientId": "promptlib-swagger",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "redirectUris": ["http://localhost:8080/q/swagger-ui/oauth2-redirect.html"],
+      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "promptlib-api"]
+    },
+    {
+      "clientId": "promptlib-register",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "secret": "dev-only-register-secret",
+      "defaultClientScopes": [
+        "profile", "email", "roles", "web-origins", "promptlib-api", "kc-admin-api"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice", "enabled": true, "email": "alice@local", "emailVerified": true,
+      "firstName": "Alice", "lastName": "Tester",
+      "credentials": [{ "type": "password", "value": "alice", "temporary": false }],
+      "realmRoles": ["user"]
+    },
+    {
+      "username": "admin", "enabled": true, "email": "admin@local", "emailVerified": true,
+      "firstName": "Admin", "lastName": "Tester",
+      "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
+      "realmRoles": ["user", "admin"]
+    }
+  ]
+}

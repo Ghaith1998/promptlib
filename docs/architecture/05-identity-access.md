@@ -141,6 +141,23 @@ Decisions embedded here:
 - `redirectUris` remain for the future PKCE migration; nothing uses them in v1 (no browser client).
 - `promptlib-register` is the only service account, and it exists solely for account creation.
 
+### 2.1 Notes verified against Keycloak 26.8.2
+
+Three things the realm JSON cannot express on its own, all handled by
+`scripts/keycloak-bootstrap.sh`:
+
+1. **`kc-admin-api` client scope.** Since 26.8 the Admin REST API only accepts tokens whose
+   audience includes the realm's admin endpoint. Attach the built-in `kc-admin-api` scope to
+   `promptlib-register`, or every admin call returns 401 even with `realm-admin`.
+2. **`user` in the default composite.** Keycloak creates `default-roles-<realm>`; add `user` to
+   its composites so self-registered accounts carry the role without an extra mapping.
+3. **Service-account roles.** Import cannot set `realm-management` roles on the service account;
+   the bootstrap assigns `manage-users` and `view-users`.
+
+Also: users created through the Admin API without `firstName`/`lastName` are rejected at login with
+"Account is not fully set up" — the registration adapter therefore derives both from the display
+name (or the username).
+
 ## 3. Flutter login: ROPC (v1)
 
 The client posts credentials **directly to Keycloak**. Quarkus never sees them.

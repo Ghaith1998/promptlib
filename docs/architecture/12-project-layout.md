@@ -247,6 +247,15 @@ class ArchitectureTest {
 13. Tests mirror the package they test; rule tests are plain JUnit, not `@QuarkusTest`.
 14. No `@Entity` reaches edge or proto; map to DTOs at the boundary.
 
+### 7.1 Runtime pitfalls worth knowing
+
+- **gRPC services must be `@Blocking`.** They run on the Vert.x IO thread by default; JPA needs a
+  worker thread, otherwise every call fails with `Cannot start a JTA transaction from the IO thread`.
+- **The generated proto module must be in the Jandex index** (`quarkus.index-dependency.proto.*`),
+  or REST client scanning in dev mode crashes on the generated gRPC base classes.
+- **The edge must not bind core's gRPC port.** It only consumes gRPC; `quarkus.grpc.server.port=9002`
+  keeps its unused server out of the way.
+
 ## 8. Test layout
 
 ```

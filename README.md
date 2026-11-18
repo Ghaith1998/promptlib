@@ -51,8 +51,11 @@ DB_PASSWORD=…
 Then:
 
 ```bash
+docker compose -f deploy/docker-compose.yml up -d   # Keycloak :8082 (start-dev, H2)
+./scripts/keycloak-bootstrap.sh                     # scopes, service-account roles, seeded users
+
 ./scripts/dev-core.sh      # sources .env, installs proto, runs quarkus:dev  (HTTP 9001, gRPC 9000)
-./scripts/dev-edge.sh      # in another terminal; needs Keycloak at OIDC_URL
+./scripts/dev-edge.sh      # in another terminal; needs Keycloak at OIDC_URL and core running
 ```
 
 Quarkus has no built-in `.env` loader, which is why the script exports the file. Flyway applies

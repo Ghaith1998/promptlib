@@ -51,9 +51,9 @@ public class IdentityFilter implements ContainerRequestFilter {
         }
         String username = token != null ? claim(token, "preferred_username", sub) : sub;
         String email = token != null ? claim(token, "email", "") : "";
-        Set<String> roles = token != null && token.getGroups() != null
-                ? token.getGroups()
-                : securityIdentity.getRoles();
+        // Quarkus maps realm_access.roles into the SecurityIdentity; getGroups() would
+        // only see a "groups" claim that this realm does not emit.
+        Set<String> roles = securityIdentity.getRoles();
 
         try {
             UserReply me = accounts.ensureUser(sub, username, email, roles);

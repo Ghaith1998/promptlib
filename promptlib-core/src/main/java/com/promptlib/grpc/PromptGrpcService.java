@@ -16,9 +16,11 @@ import com.promptlib.shared.Page;
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Inject;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 
 @GrpcService
+@Blocking
 @ActivateRequestContext
 public class PromptGrpcService extends PromptServiceGrpc.PromptServiceImplBase {
 

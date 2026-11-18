@@ -247,6 +247,31 @@ NPM settings that matter:
   **admin console** (`/admin/**`) by IP allow-list or a separate internal hostname — it is the most
   sensitive UI in the stack.
 
+### 5.1 Dev Keycloak in Compose (no full stack)
+
+For a local realm without the whole stack:
+
+```bash
+docker compose -f deploy/docker-compose.yml up -d
+./scripts/keycloak-bootstrap.sh      # scopes, service-account roles, seeded users
+```
+
+`deploy/docker-compose.yml` runs `quay.io/keycloak/keycloak:26.8.2` with `start-dev` (embedded H2),
+publishes `8082:8080`, and mounts `deploy/keycloak/` as the import directory. `start-dev` is for
+development only; the production container uses `start` with MySQL and `KC_HOSTNAME`.
+
+Set in `.env`:
+
+```
+KC_URL=http://<host>:8082
+OIDC_URL=http://<host>:8082/realms/promptlib
+KC_REGISTER_CLIENT_SECRET=dev-only-register-secret
+```
+
+The issuer is whatever URL the token endpoint is reached on. If Keycloak is reached by IP, the
+issuer is that IP — `quarkus.oidc.auth-server-url` must match exactly or every request fails with
+"issuer mismatch".
+
 ## 6. Deploy and rollback
 
 ```bash
