@@ -37,7 +37,7 @@ public class IdentityFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext request) {
-        if (request.getUriInfo().getPath().startsWith("/auth/register")) {
+        if (request.getUriInfo().getPath().contains("auth/register")) {
             return;
         }
         if (securityIdentity.isAnonymous()) {

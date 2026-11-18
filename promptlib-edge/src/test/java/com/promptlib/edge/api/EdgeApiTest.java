@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import io.restassured.http.ContentType;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -45,6 +46,19 @@ class EdgeApiTest {
     @Test
     void anonymousRequestsAreRejected() {
         given().when().get("/api/v1/me").then().statusCode(401);
+    }
+
+    @Test
+    void registrationIsPublic() {
+        when(accounts.register(any(), any(), any(), any()))
+                .thenReturn(UserReply.newBuilder().setId("kc-1").setUsername("bob")
+                        .setEmail("bob@example.com").build());
+
+        given().contentType(ContentType.JSON)
+                .body("{\"username\":\"bob\",\"email\":\"bob@example.com\",\"password\":\"longenough\"}")
+                .when().post("/api/v1/auth/register")
+                .then().statusCode(201)
+                .body("username", equalTo("bob"));
     }
 
     @Test

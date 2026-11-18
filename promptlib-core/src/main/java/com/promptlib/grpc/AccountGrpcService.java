@@ -2,8 +2,10 @@ package com.promptlib.grpc;
 
 import com.promptlib.domain.account.model.AppUser;
 import com.promptlib.domain.account.service.AccountService;
+import com.promptlib.domain.account.service.RegistrationService;
 import com.promptlib.proto.v1.AccountServiceGrpc;
 import com.promptlib.proto.v1.EnsureUserRequest;
+import com.promptlib.proto.v1.RegisterRequest;
 import com.promptlib.proto.v1.Empty;
 import com.promptlib.proto.v1.UpdateProfileRequest;
 import com.promptlib.proto.v1.UserReply;
@@ -19,6 +21,8 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
 
     @Inject
     AccountService accounts;
+    @Inject
+    RegistrationService registrations;
 
     @Override
     public void ensureUser(EnsureUserRequest request, StreamObserver<UserReply> observer) {
@@ -42,6 +46,20 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
             CallerContext caller = GrpcCallers.require();
             AppUser user = accounts.updateDisplayName(caller.userId(), request.getDisplayName());
             return reply(user, caller.roles().stream().toList());
+        });
+    }
+
+    @Override
+    public void register(RegisterRequest request, StreamObserver<UserReply> observer) {
+        GrpcResponses.unary(observer, () -> {
+            var registered = registrations.register(request.getUsername(), request.getEmail(),
+                    request.getDisplayName(), request.getPassword());
+            return UserReply.newBuilder()
+                    .setId(registered.id().toString())
+                    .setUsername(registered.username())
+                    .setEmail(registered.email())
+                    .setDisplayName(request.getDisplayName())
+                    .build();
         });
     }
 
