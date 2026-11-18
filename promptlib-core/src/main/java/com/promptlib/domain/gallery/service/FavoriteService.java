@@ -1,5 +1,7 @@
 package com.promptlib.domain.gallery.service;
 
+import com.promptlib.domain.gallery.model.FavoriteRow;
+import com.promptlib.domain.gallery.port.FavoriteQuery;
 import com.promptlib.domain.gallery.port.FavoriteRepository;
 import com.promptlib.shared.CallerContext;
 import com.promptlib.shared.port.PromptLookup;
@@ -16,12 +18,15 @@ import java.util.UUID;
 public class FavoriteService {
 
     private final FavoriteRepository favorites;
+    private final FavoriteQuery favoriteQuery;
     private final PromptLookup prompts;
     private final Clock clock;
 
     @Inject
-    public FavoriteService(FavoriteRepository favorites, PromptLookup prompts, Clock clock) {
+    public FavoriteService(FavoriteRepository favorites, FavoriteQuery favoriteQuery,
+                           PromptLookup prompts, Clock clock) {
         this.favorites = favorites;
+        this.favoriteQuery = favoriteQuery;
         this.prompts = prompts;
         this.clock = clock;
     }
@@ -41,7 +46,7 @@ public class FavoriteService {
         favorites.remove(caller.userId(), promptId);
     }
 
-    public List<UUID> list(CallerContext caller) {
-        return favorites.list(caller.userId());
+    public List<FavoriteRow> list(CallerContext caller) {
+        return favoriteQuery.list(caller.userId());
     }
 }

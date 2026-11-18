@@ -3,6 +3,7 @@ package com.promptlib.edge.api;
 import com.promptlib.edge.api.dto.library.CategoryResponse;
 import com.promptlib.edge.client.CategoryClient;
 import com.promptlib.edge.mapping.DtoMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Path("/api/v1/categories")
 @Produces(MediaType.APPLICATION_JSON)
+@Authenticated
 @SecurityRequirement(name = "keycloak")
 public class CategoryResource {
 

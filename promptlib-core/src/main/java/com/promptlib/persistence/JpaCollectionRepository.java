@@ -84,6 +84,15 @@ public class JpaCollectionRepository implements CollectionRepository {
     }
 
     @Override
+    public java.util.List<UUID> promptIds(UUID collectionId) {
+        return em.createQuery(
+                        "select cp.promptId from CollectionPrompt cp where cp.collectionId = :id order by cp.position",
+                        UUID.class)
+                .setParameter("id", collectionId)
+                .getResultList();
+    }
+
+    @Override
     public void flush() {
         em.flush();
     }

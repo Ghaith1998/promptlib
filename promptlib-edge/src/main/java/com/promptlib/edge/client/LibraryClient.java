@@ -10,6 +10,7 @@ import com.promptlib.proto.v1.Empty;
 import com.promptlib.proto.v1.ListCollectionsReply;
 import com.promptlib.proto.v1.ListTagsReply;
 import com.promptlib.proto.v1.SetTagsRequest;
+import com.promptlib.proto.v1.UpdateCollectionRequest;
 import com.promptlib.proto.v1.TagRef;
 import com.promptlib.proto.v1.TagServiceGrpc;
 import io.grpc.stub.MetadataUtils;
@@ -39,6 +40,18 @@ public class LibraryClient {
         return collections.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(GrpcMetadata.of(identity)))
                 .create(CreateCollectionRequest.newBuilder()
                         .setName(name).setColor(color == null ? "" : color).build());
+    }
+
+    public CollectionReply updateCollection(String collectionId, String name, String description,
+                                           String color, Integer sortOrder) {
+        return collections.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(GrpcMetadata.of(identity)))
+                .update(UpdateCollectionRequest.newBuilder()
+                        .setCollectionId(collectionId)
+                        .setName(name == null ? "" : name)
+                        .setDescription(description == null ? "" : description)
+                        .setColor(color == null ? "" : color)
+                        .setSortOrder(sortOrder == null ? 0 : sortOrder)
+                        .build());
     }
 
     public void deleteCollection(String collectionId) {

@@ -12,6 +12,7 @@ import com.promptlib.edge.client.PromptClient;
 import com.promptlib.edge.mapping.DtoMapper;
 import com.promptlib.proto.v1.ListPromptsReply;
 import com.promptlib.proto.v1.PromptReply;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -34,6 +35,7 @@ import java.util.List;
 @Path("/api/v1/prompts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
 @SecurityRequirement(name = "keycloak")
 public class PromptResource {
 

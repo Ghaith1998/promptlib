@@ -9,6 +9,7 @@ import com.promptlib.proto.v1.FavoriteRequest;
 import com.promptlib.proto.v1.ForkReply;
 import com.promptlib.proto.v1.ForkRequest;
 import com.promptlib.proto.v1.GalleryServiceGrpc;
+import com.promptlib.proto.v1.ListFavoritesReply;
 import com.promptlib.shared.CallerContext;
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Inject;
@@ -44,6 +45,16 @@ public class GalleryGrpcService extends GalleryServiceGrpc.GalleryServiceImplBas
             return ForkReply.newBuilder()
                     .setPromptId(gallery.fork(GrpcCallers.uuid(request.getPromptId()), caller).toString())
                     .build();
+        });
+    }
+
+    @Override
+    public void listFavorites(Empty request, StreamObserver<ListFavoritesReply> observer) {
+        GrpcResponses.unary(observer, () -> {
+            CallerContext caller = GrpcCallers.require();
+            ListFavoritesReply.Builder builder = ListFavoritesReply.newBuilder();
+            favorites.list(caller).forEach(f -> builder.addItems(GrpcMappers.favorite(f)));
+            return builder.build();
         });
     }
 

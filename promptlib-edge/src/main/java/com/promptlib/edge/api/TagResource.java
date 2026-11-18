@@ -3,6 +3,7 @@ package com.promptlib.edge.api;
 import com.promptlib.edge.api.dto.library.TagResponse;
 import com.promptlib.edge.client.LibraryClient;
 import com.promptlib.edge.mapping.DtoMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Path("/api/v1/tags")
 @Produces(MediaType.APPLICATION_JSON)
+@Authenticated
 @SecurityRequirement(name = "keycloak")
 public class TagResource {
 

@@ -1,6 +1,8 @@
 package com.promptlib.edge.mapping;
 
 import com.promptlib.edge.api.dto.account.MeResponse;
+import com.promptlib.edge.api.dto.admin.AdminPromptItemResponse;
+import com.promptlib.edge.api.dto.gallery.FavoriteItemResponse;
 import com.promptlib.edge.api.dto.gallery.GalleryItemResponse;
 import com.promptlib.edge.api.dto.library.CategoryResponse;
 import com.promptlib.edge.api.dto.library.CollectionResponse;
@@ -10,8 +12,10 @@ import com.promptlib.edge.api.dto.prompt.PromptResponse;
 import com.promptlib.edge.api.dto.prompt.VariableDto;
 import com.promptlib.edge.api.dto.version.VersionResponse;
 import com.promptlib.edge.api.dto.version.VersionSummaryResponse;
+import com.promptlib.proto.v1.AdminPromptItem;
 import com.promptlib.proto.v1.CategoryReply;
 import com.promptlib.proto.v1.CollectionReply;
+import com.promptlib.proto.v1.FavoriteItem;
 import com.promptlib.proto.v1.GalleryItem;
 import com.promptlib.proto.v1.MessageInput;
 import com.promptlib.proto.v1.MessageReply;
@@ -92,6 +96,17 @@ public final class DtoMapper {
     public static GalleryItemResponse galleryItem(GalleryItem i) {
         return new GalleryItemResponse(i.getId(), i.getTitle(), i.getDescription(), i.getCategoryId(),
                 i.getCopyCount(), i.getCreatedAt());
+    }
+
+    public static FavoriteItemResponse favorite(FavoriteItem f) {
+        return new FavoriteItemResponse(f.getId(), f.getTitle(), f.getDescription(), f.getCategoryId(),
+                f.getCopyCount(), f.getCreatedAt());
+    }
+
+    public static AdminPromptItemResponse adminPrompt(AdminPromptItem a) {
+        return new AdminPromptItemResponse(a.getId(), a.getOwnerId(), a.getOwnerUsername(), a.getTitle(),
+                a.getVisibility(), a.getModerationState(), a.getCopyCount(), a.getHiddenReason(),
+                a.getCreatedAt());
     }
 
     public static CollectionResponse collection(CollectionReply c) {

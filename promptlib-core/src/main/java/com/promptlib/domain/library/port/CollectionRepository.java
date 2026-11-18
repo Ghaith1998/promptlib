@@ -27,5 +27,7 @@ public interface CollectionRepository {
 
     boolean hasPrompt(UUID collectionId, UUID promptId);
 
+    java.util.List<UUID> promptIds(UUID collectionId);
+
     void flush();
 }

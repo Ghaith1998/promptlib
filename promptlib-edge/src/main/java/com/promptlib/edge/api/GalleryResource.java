@@ -6,6 +6,7 @@ import com.promptlib.edge.api.dto.gallery.GalleryItemResponse;
 import com.promptlib.edge.client.GalleryClient;
 import com.promptlib.edge.mapping.DtoMapper;
 import com.promptlib.proto.v1.BrowseReply;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -20,6 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 
 @Path("/api/v1/gallery")
 @Produces(MediaType.APPLICATION_JSON)
+@Authenticated
 @SecurityRequirement(name = "keycloak")
 public class GalleryResource {
 

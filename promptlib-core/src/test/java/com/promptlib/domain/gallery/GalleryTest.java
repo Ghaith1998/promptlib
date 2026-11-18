@@ -4,6 +4,7 @@ import com.promptlib.domain.account.model.AppUser;
 import com.promptlib.domain.account.service.AccountService;
 import com.promptlib.domain.category.service.CategoryService;
 import com.promptlib.domain.gallery.model.GalleryRow;
+import com.promptlib.domain.gallery.model.FavoriteRow;
 import com.promptlib.domain.gallery.service.FavoriteService;
 import com.promptlib.domain.gallery.service.GalleryService;
 import com.promptlib.domain.library.model.Collection;
@@ -120,7 +121,7 @@ class GalleryTest {
 
         favorites.add(other, source.id);
         favorites.add(other, source.id);
-        assertEquals(List.of(source.id), favorites.list(other));
+        assertEquals(List.of(source.id), favorites.list(other).stream().map(FavoriteRow::id).toList());
 
         favorites.remove(other, source.id);
         assertTrue(favorites.list(other).isEmpty());

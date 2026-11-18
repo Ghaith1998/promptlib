@@ -8,6 +8,7 @@ import com.promptlib.proto.v1.CollectionServiceGrpc;
 import com.promptlib.proto.v1.CreateCollectionRequest;
 import com.promptlib.proto.v1.Empty;
 import com.promptlib.proto.v1.ListCollectionsReply;
+import com.promptlib.proto.v1.UpdateCollectionRequest;
 import com.promptlib.shared.CallerContext;
 import io.grpc.stub.StreamObserver;
 import jakarta.inject.Inject;
@@ -35,6 +36,15 @@ public class CollectionGrpcService extends CollectionServiceGrpc.CollectionServi
             CallerContext caller = GrpcCallers.require();
             return GrpcMappers.collection(collections.create(caller, request.getName(), null,
                     request.getColor(), null));
+        });
+    }
+
+    @Override
+    public void update(UpdateCollectionRequest request, StreamObserver<CollectionReply> observer) {
+        GrpcResponses.unary(observer, () -> {
+            CallerContext caller = GrpcCallers.require();
+            return GrpcMappers.collection(collections.update(caller, GrpcCallers.uuid(request.getCollectionId()),
+                    request.getName(), request.getDescription(), request.getColor(), request.getSortOrder()));
         });
     }
 

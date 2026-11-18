@@ -6,7 +6,9 @@ import com.promptlib.proto.v1.BrowseRequest;
 import com.promptlib.proto.v1.FavoriteRequest;
 import com.promptlib.proto.v1.ForkReply;
 import com.promptlib.proto.v1.ForkRequest;
+import com.promptlib.proto.v1.Empty;
 import com.promptlib.proto.v1.GalleryServiceGrpc;
+import com.promptlib.proto.v1.ListFavoritesReply;
 import com.promptlib.proto.v1.PageRequest;
 import io.grpc.stub.MetadataUtils;
 import io.quarkus.grpc.GrpcClient;
@@ -35,6 +37,10 @@ public class GalleryClient {
 
     public ForkReply fork(String promptId) {
         return call().fork(ForkRequest.newBuilder().setPromptId(promptId).build());
+    }
+
+    public ListFavoritesReply listFavorites() {
+        return call().listFavorites(Empty.getDefaultInstance());
     }
 
     public void addFavorite(String promptId) {

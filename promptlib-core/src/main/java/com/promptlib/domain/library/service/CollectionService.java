@@ -70,11 +70,20 @@ public class CollectionService {
 
     @Transactional
     public Collection rename(CallerContext caller, UUID collectionId, String name, String description, String color) {
+        return update(caller, collectionId, name, description, color, null);
+    }
+
+    @Transactional
+    public Collection update(CallerContext caller, UUID collectionId, String name, String description,
+                             String color, Integer sortOrder) {
         Collection collection = requireOwned(caller, collectionId);
         if (name != null && name.isBlank()) {
             throw new com.promptlib.shared.error.ValidationFailed(ProblemCode.VALIDATION_FAILED);
         }
         collection.rename(name, description, Colour.normalise(color), clock.instant());
+        if (sortOrder != null) {
+            collection.sortOrder = sortOrder;
+        }
         return collection;
     }
 

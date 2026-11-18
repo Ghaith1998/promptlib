@@ -35,6 +35,6 @@ class ArchitectureTest {
     static final ArchRule adapters_do_not_leak_into_services =
             classes().that().resideInAPackage("..domain..service..")
                     .should().onlyDependOnClassesThat().resideInAnyPackage(
-                            "java..", "jakarta..", "org.jboss.logging..",
+                            "java..", "jakarta..", "org.jboss.logging..", "com.fasterxml.jackson..",
                             "com.promptlib.domain..", "com.promptlib.shared..");
 }

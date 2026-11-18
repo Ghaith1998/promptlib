@@ -8,6 +8,7 @@ import com.promptlib.edge.api.dto.version.VersionSummaryResponse;
 import com.promptlib.edge.client.PromptClient;
 import com.promptlib.edge.client.VersionClient;
 import com.promptlib.edge.mapping.DtoMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -25,6 +26,7 @@ import java.util.List;
 @Path("/api/v1/prompts/{promptId}")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
 @SecurityRequirement(name = "keycloak")
 public class VersionResource {
 

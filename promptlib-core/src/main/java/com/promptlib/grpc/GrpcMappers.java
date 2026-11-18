@@ -1,6 +1,7 @@
 package com.promptlib.grpc;
 
-import com.promptlib.domain.admin.model.AuditEntry;
+import com.promptlib.domain.admin.model.AdminPromptRow;
+import com.promptlib.domain.gallery.model.FavoriteRow;
 import com.promptlib.domain.category.model.Category;
 import com.promptlib.domain.gallery.model.GalleryRow;
 import com.promptlib.domain.library.model.Collection;
@@ -13,7 +14,9 @@ import com.promptlib.domain.prompt.model.PromptVersion;
 import com.promptlib.domain.prompt.model.VariableDefinition;
 import com.promptlib.domain.prompt.model.VariableType;
 import com.promptlib.proto.v1.CategoryReply;
+import com.promptlib.proto.v1.AdminPromptItem;
 import com.promptlib.proto.v1.CollectionReply;
+import com.promptlib.proto.v1.FavoriteItem;
 import com.promptlib.proto.v1.GalleryItem;
 import com.promptlib.proto.v1.MessageInput;
 import com.promptlib.proto.v1.MessageReply;
@@ -60,6 +63,7 @@ public final class GrpcMappers {
                 .setName(nz(c.name))
                 .setColor(nz(c.color))
                 .setSortOrder(c.sortOrder)
+                .setActive(c.active)
                 .build();
     }
 
@@ -69,6 +73,33 @@ public final class GrpcMappers {
                 .setName(nz(c.name))
                 .setColor(nz(c.color))
                 .setIsDefault(c.isDefault)
+                .setDescription(nz(c.description))
+                .setSortOrder(c.sortOrder)
+                .build();
+    }
+
+    public static FavoriteItem favorite(FavoriteRow f) {
+        return FavoriteItem.newBuilder()
+                .setId(f.id().toString())
+                .setTitle(nz(f.title()))
+                .setDescription(nz(f.description()))
+                .setCategoryId(nz(f.categoryId()))
+                .setCopyCount(f.copyCount())
+                .setCreatedAt(iso(f.createdAt()))
+                .build();
+    }
+
+    public static AdminPromptItem adminPrompt(AdminPromptRow r) {
+        return AdminPromptItem.newBuilder()
+                .setId(r.id().toString())
+                .setOwnerId(r.ownerId().toString())
+                .setOwnerUsername(nz(r.ownerUsername()))
+                .setTitle(nz(r.title()))
+                .setVisibility(nz(r.visibility()))
+                .setModerationState(nz(r.moderationState()))
+                .setCopyCount(r.copyCount())
+                .setHiddenReason(nz(r.hiddenReason()))
+                .setCreatedAt(iso(r.createdAt()))
                 .build();
     }
 

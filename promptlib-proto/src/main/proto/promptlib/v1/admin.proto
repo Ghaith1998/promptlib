@@ -8,6 +8,7 @@ import "promptlib/v1/common.proto";
 service AdminService {
   rpc Hide (HideRequest) returns (Empty);
   rpc Unhide (UnhideRequest) returns (Empty);
+  rpc ListPrompts (Empty) returns (ListAdminPromptsReply);
 }
 
 message HideRequest {
@@ -17,4 +18,20 @@ message HideRequest {
 
 message UnhideRequest {
   string prompt_id = 1;
+}
+
+message ListAdminPromptsReply {
+  repeated AdminPromptItem items = 1;
+}
+
+message AdminPromptItem {
+  string id = 1;
+  string owner_id = 2;
+  string owner_username = 3;
+  string title = 4;
+  string visibility = 5;
+  string moderation_state = 6;
+  int32 copy_count = 7;
+  string hidden_reason = 8;
+  string created_at = 9;
 }

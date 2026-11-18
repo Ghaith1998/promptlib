@@ -4,6 +4,7 @@ import com.promptlib.edge.api.dto.account.MeResponse;
 import com.promptlib.edge.api.dto.account.UpdateProfileRequest;
 import com.promptlib.edge.client.AccountClient;
 import com.promptlib.edge.mapping.DtoMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -16,6 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 @Path("/api/v1/me")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
 @SecurityRequirement(name = "keycloak")
 public class AccountResource {
 
