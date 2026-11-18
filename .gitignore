@@ -1,0 +1,32 @@
+# Build
+target/
+*.class
+
+# Quarkus
+.quarkus/
+.qute/
+
+# Environment and secrets
+.env
+*.env.local
+
+# Logs
+logs/
+*.log
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (dbml CLI)
+node_modules/
+package-lock.json
+dbml-error.log

@@ -1,0 +1,342 @@
+// ============================================================================
+//  Prompt Library — V1 baseline, DBML view
+//  Target: MySQL 8.4 (InnoDB, utf8mb4)
+//  Mirrors: V1__baseline.sql (authoritative)
+//
+//  Import into https://dbdiagram.io to render the ER diagram.
+//  DBML cannot express CHECK constraints, FULLTEXT parsers or FK ordering, so
+//  those live in the SQL file and are noted per table below.
+// ============================================================================
+
+Project prompt_library {
+  database_type: 'MySQL'
+  Note: '''
+  Prompt Library backend schema, v1.2.
+  Ids are UUID v7 in BINARY(16), generated in the application.
+  Timestamps are DATETIME(6) in UTC.
+  Soft delete: prompt (user-facing) and prompt_version (audit).
+  '''
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+enum visibility {
+  PRIVATE
+  PUBLIC
+}
+
+enum moderation_state {
+  VISIBLE
+  HIDDEN
+}
+
+enum message_role {
+  SYSTEM
+  USER
+  ASSISTANT
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+Table app_user {
+  id           binary(16)  [pk]
+  keycloak_sub varchar(36) [not null, note: 'Keycloak sub claim. Unique.']
+  username     varchar(64) [not null]
+  email        varchar(255) [not null]
+  display_name varchar(128)
+  created_at   datetime(6) [not null]
+  updated_at   datetime(6) [not null]
+  last_seen_at datetime(6)
+  deleted_at   datetime(6) [note: 'Reserved, unused in v1']
+
+  indexes {
+    keycloak_sub [unique, name: 'uk_user_sub']
+    username     [name: 'idx_user_username']
+    deleted_at   [name: 'idx_user_deleted']
+  }
+
+  Note: 'Mirror of Keycloak. No credentials stored here. Username is indexed but not unique: Keycloak owns uniqueness, and mirror lag must not break login.'
+}
+
+// ---------------------------------------------------------------------------
+// Taxonomy
+// ---------------------------------------------------------------------------
+Table category {
+  id          binary(16)   [pk]
+  slug        varchar(64)  [not null]
+  name        varchar(128) [not null]
+  description varchar(500)
+  color       char(7)      [note: '#RRGGBB or NULL']
+  sort_order  int          [not null, default: 0]
+  active      boolean      [not null, default: true]
+  created_at  datetime(6)  [not null]
+  updated_at  datetime(6)  [not null]
+
+  indexes {
+    slug            [unique, name: 'uk_category_slug']
+    (active, sort_order) [name: 'idx_category_active']
+  }
+
+  Note: 'Global, admin-managed taxonomy. Seeded in V2. CHECK: slug matches ^[a-z0-9-]+$; color matches ^#[0-9A-Fa-f]{6}$ or NULL.'
+}
+
+Table tag {
+  id         binary(16) [pk]
+  owner_id   binary(16) [not null]
+  name       varchar(50) [not null]
+  color      char(7)    [note: '#RRGGBB or NULL']
+  created_at datetime(6) [not null]
+
+  indexes {
+    (owner_id, name) [unique, name: 'uk_tag_owner_name']
+  }
+
+  Note: 'Per-user label. Case-insensitive uniqueness via utf8mb4_0900_ai_ci. Cannot be deleted while attached to a prompt (409 TAG_IN_USE).'
+}
+
+Table prompt_tag {
+  prompt_id binary(16) [not null]
+  tag_id    binary(16) [not null]
+
+  indexes {
+    (prompt_id, tag_id) [pk]
+    tag_id              [name: 'idx_pt_tag']
+  }
+
+  Note: 'Join table. Deleting a prompt cascades these rows; deleting an attached tag is refused (RESTRICT).'
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+Table prompt {
+  id                   binary(16) [pk]
+  owner_id             binary(16) [not null]
+  title                varchar(200) [not null]
+  description          varchar(2000)
+  visibility           visibility [not null, default: 'PRIVATE']
+  category_id          binary(16) [note: 'Required only when PUBLISHED']
+  latest_version_id    binary(16)
+  published_version_id binary(16)
+  fork_of_prompt_id    binary(16)
+  fork_of_version_id   binary(16)
+  copy_count           int        [not null, default: 0, note: 'UNSIGNED in MySQL; incremented per fork']
+  moderation_state     moderation_state [not null, default: 'VISIBLE']
+  hidden_reason        varchar(500)
+  hidden_at            datetime(6)
+  hidden_by            binary(16)
+  created_at           datetime(6) [not null]
+  updated_at           datetime(6) [not null]
+  deleted_at           datetime(6) [note: 'Soft delete']
+
+  indexes {
+    (owner_id, deleted_at, created_at, id)                        [name: 'idx_prompt_owner']
+    (visibility, moderation_state, category_id, deleted_at, created_at, id) [name: 'idx_prompt_gallery']
+    (visibility, moderation_state, deleted_at, copy_count, id)    [name: 'idx_prompt_popular']
+    fork_of_prompt_id                                             [name: 'idx_prompt_fork']
+  }
+
+  Note: '''
+  Metadata only; content lives in prompt_version.
+  CHECK public_requires_category: visibility='PRIVATE' OR (category_id IS NOT NULL AND published_version_id IS NOT NULL).
+  CHECK hidden_requires_reason: moderation_state='VISIBLE' OR (hidden_reason, hidden_at, hidden_by all NOT NULL).
+  published_version_id / latest_version_id are added as FKs by ALTER after prompt_version exists (circular reference).
+  '''
+}
+
+Table prompt_version {
+  id             binary(16) [pk]
+  prompt_id      binary(16) [not null]
+  version_number int        [not null, note: '>= 1, unique per prompt']
+  change_note    varchar(500)
+  variables_json json       [not null, note: 'Typed variable schema array']
+  created_by     binary(16) [not null]
+  created_at     datetime(6) [not null]
+  deleted_at     datetime(6) [note: 'Audit only; content is immutable']
+
+  indexes {
+    (prompt_id, version_number) [unique, name: 'uk_version_number']
+    (prompt_id, created_at)     [name: 'idx_version_prompt']
+  }
+
+  Note: 'Immutable. There is no update path: editing creates a new row. Latest/published versions cannot be deleted (409 VERSION_IN_USE).'
+}
+
+Table prompt_message {
+  id         binary(16) [pk]
+  version_id binary(16) [not null]
+  role       message_role [not null]
+  position   int        [not null, note: '>= 0, unique per version']
+  content    mediumtext [not null, note: 'May contain {{placeholders}}']
+
+  indexes {
+    (version_id, position) [unique, name: 'uk_message_position']
+    version_id             [name: 'idx_message_version']
+  }
+
+  Note: 'Ordered content of a version. Cascades on version delete.'
+}
+
+Table prompt_search_document {
+  prompt_id        binary(16) [pk]
+  owner_id         binary(16) [not null]
+  visibility       visibility [not null]
+  moderation_state moderation_state [not null]
+  category_id      binary(16)
+  title            varchar(200) [not null]
+  description      varchar(2000)
+  body_text        mediumtext [not null]
+  updated_at       datetime(6) [not null]
+
+  indexes {
+    (visibility, moderation_state, category_id) [name: 'idx_search_scope']
+    (title, description, body_text) [type: fulltext, name: 'ft_search']
+  }
+
+  Note: 'Rebuilt on version create/publish and on metadata change. Also becomes the payload for a future Qdrant collection. innodb_ft_min_token_size=2 must be set before the index is first populated.'
+}
+
+// ---------------------------------------------------------------------------
+// Organization
+// ---------------------------------------------------------------------------
+Table collection {
+  id             binary(16) [pk]
+  owner_id       binary(16) [not null]
+  parent_id      binary(16) [note: 'Reserved for a future tree; unused in v1']
+  name           varchar(120) [not null]
+  description    varchar(1000)
+  color          char(7)     [note: '#RRGGBB or NULL']
+  sort_order     int         [not null, default: 0]
+  is_default     boolean     [not null, default: false]
+  default_marker char(1)     [note: "'Y' on the default collection, NULL otherwise"]
+  created_at     datetime(6) [not null]
+  updated_at     datetime(6) [not null]
+
+  indexes {
+    (owner_id, default_marker)      [unique, name: 'uk_collection_default']
+    (owner_id, sort_order, id)      [name: 'idx_collection_owner']
+    parent_id                       [name: 'idx_collection_parent']
+  }
+
+  Note: '''
+  One level in v1. default_marker is the portable way to enforce one default per user
+  (MySQL has no partial unique index; multiple NULLs are allowed).
+  Delete is refused when non-empty, when it has children, or when it is the default.
+  '''
+}
+
+Table collection_prompt {
+  collection_id binary(16) [not null]
+  prompt_id     binary(16) [not null]
+  position      int        [not null, default: 0]
+  added_at      datetime(6) [not null]
+
+  indexes {
+    (collection_id, prompt_id) [pk]
+    prompt_id                  [name: 'idx_cp_prompt']
+    (collection_id, position)  [name: 'idx_cp_order']
+  }
+
+  Note: 'Filing is not ownership: deleting a prompt cascades these rows.'
+}
+
+Table favorite {
+  user_id    binary(16) [not null]
+  prompt_id  binary(16) [not null]
+  created_at datetime(6) [not null]
+
+  indexes {
+    (user_id, prompt_id) [pk]
+    prompt_id            [name: 'idx_favorite_prompt']
+  }
+
+  Note: 'A bookmark must never block deleting the prompt: cascades.'
+}
+
+// ---------------------------------------------------------------------------
+// Operations
+// ---------------------------------------------------------------------------
+Table admin_audit {
+  id          binary(16) [pk]
+  actor_id    binary(16) [not null]
+  action      varchar(64) [not null, note: 'PROMPT_HIDDEN, PROMPT_UNHIDDEN, CATEGORY_*']
+  target_type varchar(32) [not null, note: 'PROMPT | USER | CATEGORY']
+  target_id   binary(16) [not null, note: 'Deliberately no FK']
+  reason      varchar(500)
+  request_id  varchar(64)
+  created_at  datetime(6) [not null]
+
+  indexes {
+    created_at         [name: 'idx_audit_created']
+    (target_type, target_id) [name: 'idx_audit_target']
+    (actor_id, created_at)   [name: 'idx_audit_actor']
+  }
+
+  Note: 'Append-only. No update or delete path, no public endpoint. target_id has no FK so a deleted prompt cannot erase its own audit trail.'
+}
+
+// ---------------------------------------------------------------------------
+// Relationships (delete actions mirror the SQL)
+// ---------------------------------------------------------------------------
+Ref: prompt.owner_id            > app_user.id      [delete: restrict]
+Ref: prompt.hidden_by           > app_user.id      [delete: restrict]
+Ref: prompt.category_id         > category.id      [delete: restrict]
+Ref: prompt.fork_of_prompt_id   > prompt.id        [delete: set null]
+Ref: prompt.latest_version_id   > prompt_version.id [delete: restrict]
+Ref: prompt.published_version_id > prompt_version.id [delete: restrict]
+Ref: prompt.fork_of_version_id  > prompt_version.id [delete: set null]
+
+Ref: prompt_version.prompt_id   > prompt.id        [delete: restrict]
+Ref: prompt_version.created_by  > app_user.id      [delete: restrict]
+
+Ref: prompt_message.version_id  > prompt_version.id [delete: cascade]
+
+Ref: collection.owner_id        > app_user.id      [delete: restrict]
+Ref: collection.parent_id       > collection.id    [delete: restrict]
+
+Ref: collection_prompt.collection_id > collection.id [delete: cascade]
+Ref: collection_prompt.prompt_id     > prompt.id     [delete: cascade]
+
+Ref: tag.owner_id               > app_user.id      [delete: restrict]
+
+Ref: prompt_tag.prompt_id       > prompt.id        [delete: cascade]
+Ref: prompt_tag.tag_id          > tag.id           [delete: restrict]
+
+Ref: favorite.user_id           > app_user.id      [delete: cascade]
+Ref: favorite.prompt_id         > prompt.id        [delete: cascade]
+
+Ref: prompt_search_document.prompt_id > prompt.id  [delete: cascade]
+
+Ref: admin_audit.actor_id       > app_user.id      [delete: restrict]
+
+// ---------------------------------------------------------------------------
+// Groups (diagram layout)
+// ---------------------------------------------------------------------------
+TableGroup identity {
+  app_user
+}
+
+TableGroup taxonomy {
+  category
+  tag
+  prompt_tag
+}
+
+TableGroup content {
+  prompt
+  prompt_version
+  prompt_message
+  prompt_search_document
+}
+
+TableGroup organization {
+  collection
+  collection_prompt
+  favorite
+}
+
+TableGroup operations {
+  admin_audit
+}

@@ -1,0 +1,67 @@
+CREATE TABLE IF NOT EXISTS `users` (
+	`id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	`keyclock_user_id` INTEGER NOT NULL,
+	`email` VARCHAR(255) NOT NULL,
+	`name` VARCHAR(255) NOT NULL,
+	PRIMARY KEY(`id`, `keyclock_user_id`)
+);
+
+
+CREATE TABLE IF NOT EXISTS `prompts` (
+	`id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+	`user_id` INTEGER NOT NULL,
+	`tag_id` INTEGER NOT NULL,
+	`category_id` INTEGER UNSIGNED,
+	`collection_id` INTEGER NOT NULL,
+	`is_public` BOOLEAN NOT NULL,
+	PRIMARY KEY(`id`, `user_id`, `tag_id`, `category_id`, `collection_id`)
+);
+
+
+CREATE TABLE IF NOT EXISTS `Categories` (
+	`id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(255) NOT NULL,
+	PRIMARY KEY(`id`)
+);
+
+
+CREATE TABLE IF NOT EXISTS `tag` (
+	`id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+	`user_id` INTEGER NOT NULL,
+	`tag_text` VARCHAR(255) NOT NULL,
+	`color` VARBINARY(255) NOT NULL,
+	PRIMARY KEY(`id`, `user_id`)
+);
+
+
+CREATE TABLE IF NOT EXISTS `collections` (
+	`id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+	`user_id` INTEGER NOT NULL,
+	`colllection_id` INTEGER UNIQUE,
+	`name` VARCHAR(255) NOT NULL,
+	`color` VARBINARY(255) NOT NULL,
+	PRIMARY KEY(`id`, `user_id`, `colllection_id`)
+);
+
+
+ALTER TABLE `users`
+ADD FOREIGN KEY(`id`) REFERENCES `prompts`(`user_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `users`
+ADD FOREIGN KEY(`id`) REFERENCES `tag`(`user_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `tag`
+ADD FOREIGN KEY(`id`) REFERENCES `prompts`(`tag_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `users`
+ADD FOREIGN KEY(`id`) REFERENCES `collections`(`user_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `Categories`
+ADD FOREIGN KEY(`id`) REFERENCES `prompts`(`category_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `collections`
+ADD FOREIGN KEY(`id`) REFERENCES `collections`(`colllection_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE `collections`
+ADD FOREIGN KEY(`id`) REFERENCES `prompts`(`collection_id`)
+ON UPDATE NO ACTION ON DELETE NO ACTION;
