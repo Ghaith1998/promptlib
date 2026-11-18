@@ -88,11 +88,15 @@ preserve. Resist adding `V3__misc`; the first post-release change opens that ser
 
 | File | Role |
 |---|---|
-| `Database/V1__baseline.sql` | Authoritative DDL, reviewed and copied into `core/src/main/resources/db/migration/` |
-| `Database/V1__baseline.dbml` | Diagram view for humans; generated semantics, never edited first |
+| `database/V1__baseline.sql` | Authoritative DDL. The core module copies `V*.sql` onto the classpath (`db/migration`) at build time |
+| `database/V1__baseline.dbml` | Diagram view for humans; generated semantics, never edited first |
 
 When either changes, regenerate and diff the other. The DBML parser catches missing tables and broken
 refs; it cannot catch a missing `CHECK`, so those need an eye on the SQL.
+
+The dev host runs **MySQL 26.10**, newer than Flyway's latest verified server (9.4). Flyway logs a
+warning and proceeds; `V1` applied cleanly. Re-check after a server upgrade, and pin the server
+version in compose when the stack is scaffolded.
 
 ## 4. UUID v7 identifiers
 

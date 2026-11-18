@@ -36,16 +36,29 @@ Tests for `core` start a throwaway MySQL through Dev Services; Docker must be ru
 
 ## Run locally
 
-The full stack (MySQL, Keycloak, core, edge) lives in `deploy/` and is not scaffolded yet — see
-`docs/architecture/09-deployment.md` and the build order in `12 §9`.
+### With a remote (home-lab) MySQL
 
-Once it exists:
+`core` expects these variables, normally provided by the repo `.env` (gitignored):
 
 ```bash
-cp .env.example .env           # fill in secrets
-docker compose -f deploy/docker-compose.yml up -d
-curl -s localhost:8080/q/health/ready
+DB_URL='jdbc:mysql://core.home:7/promptlib?sslMode=DISABLED&allowPublicKeyRetrieval=true&connectionTimeZone=UTC'
+DB_USER=promptlib
+DB_PASSWORD=…
 ```
+
+Then:
+
+```bash
+./scripts/dev-core.sh      # sources .env, installs proto, runs quarkus:dev
+```
+
+Quarkus has no built-in `.env` loader, which is why the script exports the file. Flyway applies
+`V1__baseline.sql` on first start and Hibernate validates against it.
+
+### With the compose stack
+
+Not scaffolded yet — see `docs/architecture/09-deployment.md` and the build order in `12 §9`.
+
 
 ## Conventions
 
