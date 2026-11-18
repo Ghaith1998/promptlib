@@ -1,0 +1,32 @@
+package com.promptlib.shared;
+
+/**
+ * Stable, machine-readable error codes. Clients switch on these, never on messages.
+ */
+public enum ProblemCode {
+    NOT_FOUND,
+    FORBIDDEN,
+    CONFLICT,
+    VALIDATION_FAILED,
+    INVALID_COLOUR,
+    INVALID_CURSOR,
+    EMPTY_PROMPT,
+    VARIABLE_MISMATCH,
+    CONTENT_TOO_LARGE,
+    TOO_MANY_MESSAGES,
+    TOO_MANY_VARIABLES,
+    CATEGORY_REQUIRED,
+    PROMPT_PUBLISHED,
+    PROMPT_DELETED,
+    VERSION_IN_USE,
+    HIDDEN_BY_ADMIN,
+    TAG_IN_USE,
+    COLLECTION_NOT_EMPTY,
+    DEFAULT_COLLECTION,
+    STALE_WRITE,
+    USERNAME_TAKEN,
+    WEAK_PASSWORD,
+    UPSTREAM_UNAVAILABLE,
+    DATABASE_UNAVAILABLE,
+    IDENTITY_PROVIDER_UNAVAILABLE
+}
