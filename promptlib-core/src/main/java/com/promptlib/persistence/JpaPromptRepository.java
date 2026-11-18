@@ -39,6 +39,18 @@ public class JpaPromptRepository implements PromptRepository {
     }
 
     @Override
+    public Optional<Prompt> findPublic(UUID id) {
+        return em.createQuery(
+                        "select p from Prompt p where p.id = :id and p.deletedAt is null" +
+                                " and p.visibility = com.promptlib.domain.prompt.model.Visibility.PUBLIC" +
+                                " and p.moderationState = com.promptlib.domain.prompt.model.ModerationState.VISIBLE",
+                        Prompt.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
+    }
+
+    @Override
     public Prompt lockOwned(UUID id, UUID ownerId) {
         Prompt prompt = em.find(Prompt.class, id, LockModeType.PESSIMISTIC_WRITE);
         if (prompt == null || prompt.deletedAt != null || !prompt.ownerId.equals(ownerId)) {
@@ -65,6 +77,19 @@ public class JpaPromptRepository implements PromptRepository {
     @Override
     public void persist(Prompt prompt) {
         em.persist(prompt);
+    }
+
+    @Override
+    public void incrementCopyCount(UUID promptId, java.time.Instant now) {
+        em.createQuery("update Prompt p set p.copyCount = p.copyCount + 1, p.updatedAt = :now where p.id = :id")
+                .setParameter("now", now)
+                .setParameter("id", promptId)
+                .executeUpdate();
+    }
+
+    @Override
+    public void refresh(Prompt prompt) {
+        em.refresh(prompt);
     }
 
     @Override

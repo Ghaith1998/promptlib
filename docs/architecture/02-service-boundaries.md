@@ -70,7 +70,7 @@ core
 ├── domain/account/  app_user mirror, profile update
 ├── domain/admin/    hide/unhide, user & role management (Keycloak Admin API port), audit writer
 ├── domain/export/   read-only snapshot projection, JSON + Markdown serializers
-├── persistence/     Panache repositories (one per aggregate), search-document projector
+├── persistence/     JPA repositories (one per aggregate), search-document projector
 └── shared/          CallerContext, Ids (UUID v7), Clock, Cursor, ProblemCode, Tx
 ```
 
@@ -96,7 +96,7 @@ Forbidden, all enforced by ArchUnit:
 1. Any `domain.X` importing `domain.Y` classes other than interfaces in `shared.port`.
 2. Any `domain.*` importing `persistence.*` or `grpc.*`.
 3. `shared` importing anything from `domain`, `persistence`, `grpc`.
-4. `grpc` classes touching Panache (`PanacheEntity`, `PanacheQuery`, `EntityManager`).
+4. `grpc` classes touching persistence (`EntityManager`, `PanacheQuery`, repositories).
 5. `domain.*` importing `jakarta.ws.rs.*` or gRPC types (transport leakage).
 6. Any class outside `persistence` referencing a `@Entity` type directly in a query.
 

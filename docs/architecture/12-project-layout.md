@@ -50,7 +50,7 @@ com.promptlib
 │   ├── admin/    { model, port, service }
 │   └── export/   { model, service }
 ├── persistence/
-│   ├── Panache*Repository.java
+│   ├── Jpa*Repository.java
 │   ├── SearchDocumentProjector.java
 │   └── projection/          GalleryRow, PromptSummaryRow, AdminPromptRow
 ├── grpc/
@@ -80,9 +80,9 @@ public interface PromptRepository {
     void persist(Prompt prompt);
 }
 
-// persistence/PanachePromptRepository.java      (owned by infrastructure)
+// persistence/JpaPromptRepository.java          (owned by infrastructure)
 @ApplicationScoped
-public class PanachePromptRepository implements PromptRepository { … }
+public class JpaPromptRepository implements PromptRepository { … }
 ```
 
 The dependency arrow points inward. Five reasons it earns its keep here:
@@ -93,7 +93,7 @@ The dependency arrow points inward. Five reasons it earns its keep here:
 3. Cross-domain access is explicit: `domain.gallery` uses `shared.port.PromptLookup`, which becomes a
    gRPC call the day gallery is extracted (`02 §4`).
 4. `KeycloakRegistrationPort` + adapter is the only way to test registration without a container.
-5. Repositories return `Optional<Prompt>`, never `PanacheQuery` or an open session — no lazy-loading
+5. Repositories return `Optional<Prompt>`, never a `PanacheQuery`, `EntityManager` or an open session — no lazy-loading
    surprises leaking into the domain.
 
 Every `port` package carries a `package-info.java` stating: *implementations live in `persistence` or
@@ -141,7 +141,7 @@ map. If it needs an `if` that is not validation, the rule belongs in core.
 | Repository port | `<Aggregate>Repository` | `PromptRepository` |
 | Query port | `<Concern>Query` | `GalleryQuery` |
 | External port | `<System>Port` | `KeycloakRegistrationPort` |
-| Panache adapter | `Panache<Aggregate>Repository` | `PanachePromptRepository` |
+| Persistence adapter | `Jpa<Aggregate>Repository` | `JpaPromptRepository` |
 | External adapter | `<System>Adapter` | `KeycloakRegistrationAdapter` |
 | gRPC implementation | `<Domain>GrpcService` | `GalleryGrpcService` |
 | Edge client | `<Domain>Client` | `GalleryClient` |

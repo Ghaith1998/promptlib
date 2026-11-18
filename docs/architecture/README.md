@@ -21,7 +21,7 @@ folder as ADR-21…ADR-27.
 | [`01-domain-model.md`](01-domain-model.md) | Aggregates, invariants, publish state machine, fork rules, DDL, variables schema | Designing tables or rules |
 | [`02-service-boundaries.md`](02-service-boundaries.md) | Why two deployables, edge as anti-corruption layer, module rules, extraction path | Touching package structure |
 | [`03-communication.md`](03-communication.md) | REST surface, status codes, cursor pagination, error model, proto design, metadata, status mapping | Writing an endpoint or RPC |
-| [`04-data-persistence.md`](04-data-persistence.md) | MySQL/Flyway/Panache conventions, UUID v7, transactions, locking, FULLTEXT, user mirror | Writing a query or migration |
+| [`04-data-persistence.md`](04-data-persistence.md) | MySQL/Flyway/JPA conventions, UUID v7, transactions, locking, FULLTEXT, user mirror | Writing a query or migration |
 | [`05-identity-access.md`](05-identity-access.md) | Realm/client/role config, ROPC login, registration proxy, edge validation, ownership rules | Anything auth |
 | [`06-logging.md`](06-logging.md) | File logging + rotation, correlation IDs, what to log, PII, verification steps | Debugging or adding log lines |
 | [`07-resilience.md`](07-resilience.md) | Timeouts, retries, circuit breakers, degradation matrix, banned patterns | Calling across a hop |

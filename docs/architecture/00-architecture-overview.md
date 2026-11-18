@@ -133,7 +133,7 @@ com.promptlib
 │   ├── category/           Category taxonomy (seeded + admin CRUD)
 │   ├── account/            app_user mirror, profile
 │   └── admin/              moderation, user/role management (Keycloak Admin API), audit
-├── persistence/            Panache repositories, Flyway-facing read models, search document
+├── persistence/            JPA repositories, Flyway-facing read models, search document
 └── grpc/                   service implementations + interceptors (identity, request-id, errors)
 ```
 
@@ -149,7 +149,7 @@ This is enforced by ArchUnit, not by discipline (`08-testing.md`).
 3. edge: @Timeout(3s) @CircuitBreaker wrapper calls GalleryService.BrowseGallery over gRPC
          metadata: x-user-id=<uuid>, x-user-roles=user, x-request-id=<uuid7>
 4. core: ServerInterceptor validates metadata, builds CallerContext, opens MDC requestId
-5. core: GalleryService → GalleryBrowseQuery → Panache → MySQL
+5. core: GalleryService → GalleryQuery → JPA → MySQL
 6. core: maps entities to proto messages, returns
 7. edge: maps proto → REST DTO, returns JSON; errors become application/problem+json
 ```
