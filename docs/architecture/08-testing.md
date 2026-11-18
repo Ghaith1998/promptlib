@@ -202,40 +202,74 @@ run a "create new version" flow, assert zero `update` statements against `prompt
 
 ## 7. ArchUnit rules
 
+Seven rules in `promptlib-core` plus one in `promptlib-edge` (which can only see its own module).
+Together they are the mechanical expression of ADR-03, ADR-04 and ADR-08.
+
 ```java
 @AnalyzeClasses(packages = "com.promptlib", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
 
+    // 1. the domain never sees infrastructure or transport
     @ArchTest
-    static final ArchRule shared_must_not_depend_on_domains =
-        noClasses().that().resideInAPackage("..shared..")
-            .should().dependOnClassesThat().resideInAnyPackage("..domain..", "..persistence..", "..grpc..");
+    static final ArchRule domain_never_sees_infrastructure =
+        noClasses().that().resideInAPackage("..domain..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "com.promptlib.persistence..", "com.promptlib.grpc..", "com.promptlib.adapter..",
+                "jakarta.ws.rs..", "io.grpc..", "com.promptlib.proto..");
 
+    // 2. gRPC services never touch the persistence API
     @ArchTest
-    static final ArchRule domains_do_not_see_transport =
-        noClasses().that().resideInAnyPackage("..domain..")
-            .should().dependOnClassesThat().resideInAnyPackage("jakarta.ws.rs..", "io.grpc..", "com.promptlib.proto..");
-
-    @ArchTest
-    static final ArchRule domains_do_not_see_persistence =
-        noClasses().that().resideInAnyPackage("..domain.prompt..", "..domain.gallery..")
-            .should().dependOnClassesThat().resideInAPackage("..persistence..");
-
-    @ArchTest
-    static final ArchRule grpc_does_not_touch_panache =
+    static final ArchRule grpc_does_not_use_the_entity_manager =
         noClasses().that().resideInAPackage("..grpc..")
-            .should().dependOnClassesThat().resideInAnyPackage("io.quarkus.hibernate.orm.panache..", "jakarta.persistence..");
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "jakarta.persistence..", "io.quarkus.hibernate.orm.panache..");
 
+    // 3. the shared kernel is a leaf
+    @ArchTest
+    static final ArchRule shared_is_a_leaf =
+        noClasses().that().resideInAPackage("..shared..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "com.promptlib.domain..", "com.promptlib.persistence..",
+                "com.promptlib.grpc..", "com.promptlib.adapter..");
+
+    // 4. gallery reaches prompts only through ports (ADR-04/ADR-08)
     @ArchTest
     static final ArchRule gallery_reaches_prompt_only_through_ports =
         classes().that().resideInAPackage("..domain.gallery..")
-            .should().onlyDependOnClassesThat()
-            .resideInAnyPackage("..domain.gallery..", "..shared..", "java..", "org.jboss.logging..");
+            .should().onlyDependOnClassesThat().resideInAnyPackage(
+                "..domain.gallery..", "..shared..", "java..", "jakarta..", "org.jboss.logging..");
+
+    // 5. the edge knows proto types, never domain entities
+    @ArchTest
+    static final ArchRule edge_has_no_domain_access =
+        noClasses().that().resideInAPackage("com.promptlib.edge..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                "com.promptlib.domain..", "com.promptlib.persistence..")
+            .allowEmptyShould(true);          // core's module has no edge classes
+
+    // 6. entities stay inside core
+    @ArchTest
+    static final ArchRule entities_stay_in_core =
+        noClasses().that().resideOutsideOfPackages("..domain..", "..persistence..")
+            .should().beAnnotatedWith(jakarta.persistence.Entity.class);
+
+    // 7. use-case services only orchestrate domain and shared types
+    @ArchTest
+    static final ArchRule adapters_do_not_leak_into_services =
+        classes().that().resideInAPackage("..domain..service..")
+            .should().onlyDependOnClassesThat().resideInAnyPackage(
+                "java..", "jakarta..", "org.jboss.logging..", "com.fasterxml.jackson..",
+                "com.promptlib.domain..", "com.promptlib.shared..");
 }
 ```
 
-The last rule is the one that matters: it is the mechanical expression of ADR-04/ADR-08. Without it,
-"modular first" is a comment.
+Rule 4 is the important one: it is what makes "extract gallery later" a deploy decision rather than a
+rewrite. It allows `jakarta..` because the gallery entities carry JPA annotations and its services
+are CDI beans — the intent is that it must not reach into another domain's classes, not that it cannot
+use the platform.
+
+`promptlib-edge` carries rule 5 again in its own `EdgeArchitectureTest`, where the classes actually
+live; a rule that can only ever see zero classes is not enforcement.
 
 ## 8. Manual compose smoke test
 

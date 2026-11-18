@@ -32,6 +32,25 @@ class ArchitectureTest {
                             "jakarta.persistence..", "io.quarkus.hibernate.orm.panache..");
 
     @ArchTest
+    static final ArchRule gallery_reaches_prompt_only_through_ports =
+            classes().that().resideInAPackage("..domain.gallery..")
+                    .should().onlyDependOnClassesThat().resideInAnyPackage(
+                            "..domain.gallery..", "..shared..", "java..", "jakarta..",
+                            "org.jboss.logging..");
+
+    @ArchTest
+    static final ArchRule edge_has_no_domain_access =
+            noClasses().that().resideInAPackage("com.promptlib.edge..")
+                    .should().dependOnClassesThat().resideInAnyPackage(
+                            "com.promptlib.domain..", "com.promptlib.persistence..")
+                    .allowEmptyShould(true);
+
+    @ArchTest
+    static final ArchRule entities_stay_in_core =
+            noClasses().that().resideOutsideOfPackages("..domain..", "..persistence..")
+                    .should().beAnnotatedWith(jakarta.persistence.Entity.class);
+
+    @ArchTest
     static final ArchRule adapters_do_not_leak_into_services =
             classes().that().resideInAPackage("..domain..service..")
                     .should().onlyDependOnClassesThat().resideInAnyPackage(
