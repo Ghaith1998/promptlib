@@ -55,12 +55,12 @@ class ModerationTest {
 
         moderation.hide(admin, prompt.id, "off topic", "req-1");
 
-        assertTrue(gallery.browse(null, null, 100).items().stream().noneMatch(i -> i.id().equals(prompt.id)));
+        assertTrue(gallery.browse(null, null, null, 100).items().stream().noneMatch(i -> i.id().equals(prompt.id)));
         assertEquals(1, audit.listForTarget("PROMPT", prompt.id).size());
 
         moderation.unhide(admin, prompt.id, "req-2");
 
-        assertTrue(gallery.browse(null, null, 100).items().stream().anyMatch(i -> i.id().equals(prompt.id)));
+        assertTrue(gallery.browse(null, null, null, 100).items().stream().anyMatch(i -> i.id().equals(prompt.id)));
         assertEquals(2, audit.listForTarget("PROMPT", prompt.id).size());
     }
 

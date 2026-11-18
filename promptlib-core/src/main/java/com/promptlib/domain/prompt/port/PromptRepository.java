@@ -18,7 +18,7 @@ public interface PromptRepository {
     /** Row lock used by version creation and publishing. */
     Prompt lockOwned(UUID id, UUID ownerId);
 
-    List<Prompt> pageOwned(UUID ownerId, com.promptlib.shared.Cursor cursor, int limit);
+    List<Prompt> pageOwned(UUID ownerId, com.promptlib.shared.Cursor cursor, String query, int limit);
 
     void persist(Prompt prompt);
 

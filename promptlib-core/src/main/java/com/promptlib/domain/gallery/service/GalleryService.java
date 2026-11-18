@@ -15,20 +15,20 @@ import java.util.UUID;
 @ApplicationScoped
 public class GalleryService {
 
-    private final GalleryQuery query;
+    private final GalleryQuery galleryQuery;
     private final PromptForking forking;
 
     @Inject
-    public GalleryService(GalleryQuery query, PromptForking forking) {
-        this.query = query;
+    public GalleryService(GalleryQuery galleryQuery, PromptForking forking) {
+        this.galleryQuery = galleryQuery;
         this.forking = forking;
     }
 
-    public Page<GalleryRow> browse(UUID categoryId, String cursor, int limit) {
+    public Page<GalleryRow> browse(UUID categoryId, String query, String cursor, int limit) {
         int size = Math.max(1, Math.min(limit <= 0 ? 20 : limit, 100));
         Cursor decoded = cursor == null || cursor.isBlank() ? null : Cursor.decode(cursor);
 
-        List<GalleryRow> rows = query.newest(categoryId, decoded, size + 1);
+        List<GalleryRow> rows = galleryQuery.newest(categoryId, query, decoded, size + 1);
         boolean hasMore = rows.size() > size;
         List<GalleryRow> items = hasMore ? rows.subList(0, size) : rows;
         String next = null;

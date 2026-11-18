@@ -17,7 +17,7 @@ public class JpaGalleryQuery implements GalleryQuery {
     EntityManager em;
 
     @Override
-    public List<GalleryRow> newest(UUID categoryId, Cursor cursor, int limit) {
+    public List<GalleryRow> newest(UUID categoryId, String search, Cursor cursor, int limit) {
         String jpql = """
                 select new com.promptlib.domain.gallery.model.GalleryRow(
                     p.id, p.title, p.description, p.categoryId, p.copyCount, p.createdAt)
@@ -29,6 +29,9 @@ public class JpaGalleryQuery implements GalleryQuery {
         if (categoryId != null) {
             jpql += " and p.categoryId = :category";
         }
+        if (search != null && !search.isBlank()) {
+            jpql += " and (lower(p.title) like :q or lower(coalesce(p.description, '')) like :q)";
+        }
         if (cursor != null) {
             jpql += " and (p.createdAt < :ts or (p.createdAt = :ts and p.id < :id))";
         }
@@ -37,6 +40,9 @@ public class JpaGalleryQuery implements GalleryQuery {
         var query = em.createQuery(jpql, GalleryRow.class);
         if (categoryId != null) {
             query.setParameter("category", categoryId);
+        }
+        if (search != null && !search.isBlank()) {
+            query.setParameter("q", "%" + search.toLowerCase(java.util.Locale.ROOT) + "%");
         }
         if (cursor != null) {
             query.setParameter("ts", cursor.timestamp()).setParameter("id", cursor.id());

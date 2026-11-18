@@ -46,7 +46,7 @@ public class PromptGrpcService extends PromptServiceGrpc.PromptServiceImplBase {
     public void list(ListPromptsRequest request, StreamObserver<ListPromptsReply> observer) {
         GrpcResponses.unary(observer, () -> {
             CallerContext caller = GrpcCallers.require();
-            Page<Prompt> page = prompts.listOwned(caller, request.getPage().getCursor(),
+            Page<Prompt> page = prompts.listOwned(caller, request.getPage().getCursor(), request.getQuery(),
                     request.getPage().getLimit());
             ListPromptsReply.Builder builder = ListPromptsReply.newBuilder();
             page.items().forEach(p -> builder.addItems(GrpcMappers.prompt(p)));

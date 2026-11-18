@@ -94,7 +94,7 @@ public class ExportService {
         ArrayNode promptsNode = root.putArray("prompts");
         String cursor = null;
         while (true) {
-            var page = prompts.pageOwned(caller.userId(), cursor == null ? null : Cursor.decode(cursor),
+            var page = prompts.pageOwned(caller.userId(), cursor == null ? null : Cursor.decode(cursor), null,
                     PAGE + 1);
             boolean hasMore = page.size() > PAGE;
             List<Prompt> batch = hasMore ? page.subList(0, PAGE) : page;

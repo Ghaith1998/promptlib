@@ -28,10 +28,11 @@ public class GalleryClient {
         return stub.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(GrpcMetadata.of(identity)));
     }
 
-    public BrowseReply browse(String cursor, int limit, String categoryId) {
+    public BrowseReply browse(String cursor, int limit, String categoryId, String query) {
         return call().browse(BrowseRequest.newBuilder()
                 .setPage(PageRequest.newBuilder().setCursor(cursor == null ? "" : cursor).setLimit(limit))
                 .setCategoryId(categoryId == null ? "" : categoryId)
+                .setQuery(query == null ? "" : query)
                 .build());
     }
 

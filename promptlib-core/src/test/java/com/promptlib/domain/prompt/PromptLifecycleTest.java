@@ -118,7 +118,7 @@ class PromptLifecycleTest {
         prompts.delete(caller, prompt.id);
 
         assertTrue(prompts.findVisible(prompt.id, caller.userId()).isEmpty());
-        assertTrue(prompts.listOwned(caller, null, 20).items().isEmpty());
+        assertTrue(prompts.listOwned(caller, null, null, 20).items().isEmpty());
     }
 
     @Test
@@ -128,11 +128,11 @@ class PromptLifecycleTest {
         prompts.create(caller, draft("two"));
         prompts.create(caller, draft("three"));
 
-        Page<Prompt> first = prompts.listOwned(caller, null, 2);
+        Page<Prompt> first = prompts.listOwned(caller, null, null, 2);
         assertEquals(2, first.items().size());
         assertNotNull(first.nextCursor());
 
-        Page<Prompt> second = prompts.listOwned(caller, first.nextCursor(), 2);
+        Page<Prompt> second = prompts.listOwned(caller, first.nextCursor(), null, 2);
         assertEquals(1, second.items().size());
         assertNull(second.nextCursor());
 

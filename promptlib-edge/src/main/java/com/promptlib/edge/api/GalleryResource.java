@@ -31,8 +31,9 @@ public class GalleryResource {
     @GET
     public PageResponse<GalleryItemResponse> browse(@QueryParam("cursor") String cursor,
                                                     @QueryParam("limit") @DefaultValue("20") int limit,
-                                                    @QueryParam("categoryId") String categoryId) {
-        BrowseReply reply = gallery.browse(cursor, limit, categoryId);
+                                                    @QueryParam("categoryId") String categoryId,
+                                                    @QueryParam("q") String query) {
+        BrowseReply reply = gallery.browse(cursor, limit, categoryId, query);
         return new PageResponse<>(
                 reply.getItemsList().stream().map(DtoMapper::galleryItem).toList(),
                 reply.getNextCursor().isBlank() ? null : reply.getNextCursor());

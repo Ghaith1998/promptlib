@@ -60,18 +60,24 @@ public class JpaPromptRepository implements PromptRepository {
     }
 
     @Override
-    public List<Prompt> pageOwned(UUID ownerId, Cursor cursor, int limit) {
+    public List<Prompt> pageOwned(UUID ownerId, Cursor cursor, String query, int limit) {
         String jpql = "select p from Prompt p where p.ownerId = :owner and p.deletedAt is null";
+        if (query != null && !query.isBlank()) {
+            jpql += " and (lower(p.title) like :q or lower(coalesce(p.description, '')) like :q)";
+        }
         if (cursor != null) {
             jpql += " and (p.createdAt < :ts or (p.createdAt = :ts and p.id < :id))";
         }
         jpql += " order by p.createdAt desc, p.id desc";
 
-        var query = em.createQuery(jpql, Prompt.class).setParameter("owner", ownerId);
-        if (cursor != null) {
-            query.setParameter("ts", cursor.timestamp()).setParameter("id", cursor.id());
+        var typed = em.createQuery(jpql, Prompt.class).setParameter("owner", ownerId);
+        if (query != null && !query.isBlank()) {
+            typed.setParameter("q", "%" + query.toLowerCase(java.util.Locale.ROOT) + "%");
         }
-        return query.setMaxResults(limit).getResultList();
+        if (cursor != null) {
+            typed.setParameter("ts", cursor.timestamp()).setParameter("id", cursor.id());
+        }
+        return typed.setMaxResults(limit).getResultList();
     }
 
     @Override

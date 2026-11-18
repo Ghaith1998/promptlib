@@ -43,9 +43,10 @@ public class PromptClient {
         return call().get(GetPromptRequest.newBuilder().setPromptId(promptId).build());
     }
 
-    public ListPromptsReply list(String cursor, int limit) {
+    public ListPromptsReply list(String cursor, int limit, String query) {
         return call().list(ListPromptsRequest.newBuilder()
                 .setPage(PageRequest.newBuilder().setCursor(cursor == null ? "" : cursor).setLimit(limit))
+                .setQuery(query == null ? "" : query)
                 .build());
     }
 

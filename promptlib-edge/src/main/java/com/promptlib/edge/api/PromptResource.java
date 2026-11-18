@@ -58,8 +58,9 @@ public class PromptResource {
 
     @GET
     public PageResponse<PromptResponse> list(@QueryParam("cursor") String cursor,
-                                             @QueryParam("limit") @DefaultValue("20") int limit) {
-        ListPromptsReply reply = prompts.list(cursor, limit);
+                                             @QueryParam("limit") @DefaultValue("20") int limit,
+                                             @QueryParam("q") String query) {
+        ListPromptsReply reply = prompts.list(cursor, limit, query);
         return new PageResponse<>(
                 reply.getItemsList().stream().map(DtoMapper::prompt).toList(),
                 reply.getNextCursor().isBlank() ? null : reply.getNextCursor());

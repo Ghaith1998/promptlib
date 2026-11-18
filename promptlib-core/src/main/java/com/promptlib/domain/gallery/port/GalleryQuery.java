@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface GalleryQuery {
 
-    List<GalleryRow> newest(UUID categoryId, Cursor cursor, int limit);
+    List<GalleryRow> newest(UUID categoryId, String query, Cursor cursor, int limit);
 }

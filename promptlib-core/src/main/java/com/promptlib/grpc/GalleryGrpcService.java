@@ -27,7 +27,7 @@ public class GalleryGrpcService extends GalleryServiceGrpc.GalleryServiceImplBas
     public void browse(BrowseRequest request, StreamObserver<BrowseReply> observer) {
         GrpcResponses.unary(observer, () -> {
             GrpcCallers.require();
-            var page = gallery.browse(GrpcCallers.nullableUuid(request.getCategoryId()),
+            var page = gallery.browse(GrpcCallers.nullableUuid(request.getCategoryId()), request.getQuery(),
                     request.getPage().getCursor(), request.getPage().getLimit());
             BrowseReply.Builder builder = BrowseReply.newBuilder();
             page.items().forEach(i -> builder.addItems(GrpcMappers.galleryItem(i)));

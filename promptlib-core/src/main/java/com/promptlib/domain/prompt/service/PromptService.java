@@ -74,11 +74,11 @@ public class PromptService {
         return prompts.findOwned(promptId, ownerId);
     }
 
-    public Page<Prompt> listOwned(CallerContext caller, String cursor, int limit) {
+    public Page<Prompt> listOwned(CallerContext caller, String cursor, String query, int limit) {
         int size = Math.max(1, Math.min(limit <= 0 ? 20 : limit, 100));
         Cursor decoded = cursor == null || cursor.isBlank() ? null : Cursor.decode(cursor);
 
-        List<Prompt> rows = prompts.pageOwned(caller.userId(), decoded, size + 1);
+        List<Prompt> rows = prompts.pageOwned(caller.userId(), decoded, query, size + 1);
         boolean hasMore = rows.size() > size;
         List<Prompt> items = hasMore ? rows.subList(0, size) : rows;
         String next = null;

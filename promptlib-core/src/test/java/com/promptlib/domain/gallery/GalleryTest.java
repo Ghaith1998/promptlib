@@ -62,7 +62,7 @@ class GalleryTest {
         Prompt privatePrompt = prompts.create(owner, new PromptDraft("Private", null,
                 List.of(new MessageDraft(MessageRole.USER, "secret")), List.of()));
 
-        Page<GalleryRow> page = gallery.browse(null, null, 20);
+        Page<GalleryRow> page = gallery.browse(null, null, null, 20);
 
         assertTrue(page.items().stream().anyMatch(i -> i.id().equals(publicPrompt.id)));
         assertTrue(page.items().stream().noneMatch(i -> i.id().equals(privatePrompt.id)));
@@ -84,7 +84,7 @@ class GalleryTest {
         Collection def = collections.ensureDefault(other);
         assertTrue(collectionRepository.hasPrompt(def.id, fork.id));
 
-        GalleryRow sourceRow = gallery.browse(null, null, 50).items().stream()
+        GalleryRow sourceRow = gallery.browse(null, null, null, 50).items().stream()
                 .filter(i -> i.id().equals(source.id))
                 .findFirst()
                 .orElseThrow();
