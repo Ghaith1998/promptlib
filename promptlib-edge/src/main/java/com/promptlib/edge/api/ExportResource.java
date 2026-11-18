@@ -33,15 +33,6 @@ public class ExportResource {
                 .build();
     }
 
-    @GET
-    @Path("/prompts/{id}/export.md")
-    @Produces("text/markdown")
-    public Response exportMarkdown(@PathParam("id") String id) {
-        return Response.ok((StreamingOutput) out -> write(out, exports.markdown(id)))
-                .header("Content-Disposition", "attachment; filename=\"prompt-" + id + ".md\"")
-                .build();
-    }
-
     private void write(java.io.OutputStream out, Iterator<ExportChunk> chunks) throws java.io.IOException {
         while (chunks.hasNext()) {
             out.write(chunks.next().getData().getBytes(StandardCharsets.UTF_8));

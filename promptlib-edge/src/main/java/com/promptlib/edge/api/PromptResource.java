@@ -6,6 +6,7 @@ import com.promptlib.edge.api.dto.library.TagResponse;
 import com.promptlib.edge.api.dto.prompt.CreatePromptRequest;
 import com.promptlib.edge.api.dto.prompt.PromptResponse;
 import com.promptlib.edge.api.dto.prompt.UpdatePromptRequest;
+import com.promptlib.edge.client.ExportClient;
 import com.promptlib.edge.client.GalleryClient;
 import com.promptlib.edge.client.LibraryClient;
 import com.promptlib.edge.client.PromptClient;
@@ -30,6 +31,8 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 
 @Path("/api/v1/prompts")
@@ -45,6 +48,8 @@ public class PromptResource {
     GalleryClient gallery;
     @Inject
     LibraryClient library;
+    @Inject
+    ExportClient exports;
 
     @POST
     public Response create(CreatePromptRequest request) {
@@ -97,6 +102,23 @@ public class PromptResource {
     public Response unfavorite(@PathParam("id") String id) {
         gallery.removeFavorite(id);
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{id}/export{ext}")
+    @Produces("text/markdown")
+    public Response exportMarkdown(@PathParam("id") String id, @PathParam("ext") String ext) {
+        if (!".md".equals(ext)) {
+            throw new jakarta.ws.rs.NotFoundException();
+        }
+        return Response.ok((jakarta.ws.rs.core.StreamingOutput) out -> {
+                    Iterator<com.promptlib.proto.v1.ExportChunk> chunks = exports.markdown(id);
+                    while (chunks.hasNext()) {
+                        out.write(chunks.next().getData().getBytes(StandardCharsets.UTF_8));
+                    }
+                })
+                .header("Content-Disposition", "attachment; filename=\"prompt-" + id + ".md\"")
+                .build();
     }
 
     @PUT

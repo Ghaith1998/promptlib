@@ -8,4 +8,5 @@ if [[ -f "$ROOT/.env" ]]; then
   source "$ROOT/.env"
   set +a
 fi
+"$ROOT/mvnw" -q -DskipTests install -pl promptlib-proto -am
 exec "$ROOT/mvnw" -pl promptlib-edge quarkus:dev "$@"

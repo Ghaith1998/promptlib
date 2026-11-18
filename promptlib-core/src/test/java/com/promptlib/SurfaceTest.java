@@ -131,6 +131,20 @@ class SurfaceTest {
     }
 
     @Test
+    void exportContainsOnlyTheCallersPrompts() {
+        CallerContext alice = caller("user");
+        CallerContext bob = caller("user");
+        Prompt alicePrompt = published(alice);
+        prompts.create(bob, new PromptDraft("Bob private", null,
+                List.of(new MessageDraft(MessageRole.USER, "bob body")), List.of()));
+
+        String bobExport = String.join("", exports.exportLibrary(bob));
+
+        assertFalse(bobExport.contains(alicePrompt.title));
+        assertTrue(bobExport.contains("Bob private"));
+    }
+
+    @Test
     void exportMarkdownIsReadable() {
         CallerContext owner = caller("user");
         Prompt prompt = published(owner);
